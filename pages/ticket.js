@@ -1,5 +1,5 @@
 import Layout from '../components/Layout.js';
-import fetch from 'isomorphic-unfetch';
+// import fetch from 'isomorphic-unfetch';
 
 const Ticket = props => (
   <Layout>
@@ -10,9 +10,9 @@ const Ticket = props => (
 
 Ticket.getInitialProps = async function(context) {
   const { id, title } = context.query;
-  /*const res = await fetch(`//api/url`);
+  /* const res = await fetch(`//api/url`);
   const data = await res.json();
-  return { data };*/
+  return { data }; */
   return { id, title };
 };
 

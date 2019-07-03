@@ -5,7 +5,7 @@ function getTickets() {
   return [
     { id: 1, title: 'Ticket 1: SIREN perdu' },
     { id: 2, title: 'Ticket 2: Mot de passe erroné' },
-    { id: 3, title: 'Ticket 3: Email' }
+    { id: 3, title: 'Ticket 3: Email' },
   ];
 }
 
