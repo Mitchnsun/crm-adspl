@@ -9,10 +9,17 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/Mitchnsun/crm-adspl/issues"
   },
+  "private": true,
+  "license": "All reserved right",
+  "engines": {
+    "node": "10.16.*",
+    "npm": "6.9.*",
+    "yarn": "1.16.*"
+  },
+
   "homepage": "https://github.com/Mitchnsun/crm-adspl#readme",
   "scripts": {
     "dev": "node server.js",

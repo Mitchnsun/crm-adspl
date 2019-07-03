@@ -12,9 +12,9 @@ This README documents steps are necessary to get your application up and running
 * Node v10.16.0
 
 ###### Set up ######
-* `npm install`
-* For dev: `npm run dev`
-* Running: `npm run build` + `npm start`
+* Install: `yarn`
+* For dev: `yarn dev`
+* Running: `yarn build` + `yarn start`
 
 ###### Configuration ######
 
