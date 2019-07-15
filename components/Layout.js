@@ -1,16 +1,18 @@
 import Header from './Header';
-
-const layoutStyle = {
-  margin: 20,
-  padding: 20,
-  border: '1px solid #DDD',
-};
+import Normalize from '../styles/Normalize';
 
 const Layout = props => (
-  <div style={layoutStyle}>
+  <React.Fragment>
+    <Normalize />
     <Header />
-    {props.children}
-  </div>
+    <div>{props.children}</div>
+    <style jsx>{`
+      div {
+        margin: 0 auto;
+        width: 980px;
+      }
+    `}</style>
+  </React.Fragment>
 );
 
 export default Layout;

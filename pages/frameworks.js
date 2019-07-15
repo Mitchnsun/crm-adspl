@@ -1,9 +1,9 @@
 import Layout from '../components/Layout.js';
 
-export default function About() {
+export default function Frameworks() {
   return (
     <Layout>
-      <p>This is the about page</p>
+      <p>This is the frameworks page</p>
     </Layout>
   );
 }

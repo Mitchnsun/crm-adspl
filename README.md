@@ -1,34 +1,39 @@
-# CRM ADPSL #
+# CRM ADPSL
+
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 This README documents steps are necessary to get your application up and running.
 
-### What is this repository for? ###
+### What is this repository for?
 
-* CRM for ADSPL
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+- CRM for ADSPL
+- [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
-###### Requirements ######
-* Node v10.16.0
+###### Requirements
 
-###### Set up ######
-* Install: `yarn`
-* For dev: `yarn dev`
-* Running: `yarn build` + `yarn start`
+- Node v10.16.0
+- Yarn v1.16.0
 
-###### Configuration ######
+###### Set up
 
-* To see which modules are outdated: `npm outdated`
+- Install: `yarn`
+- For dev: `yarn dev`
+- Running: `yarn build` + `yarn start`
 
-* Database configuration
-* How to run tests
-* Deployment instructions
+###### Configuration
 
-### Contribution guidelines ###
+- To see which modules are outdated: `npm outdated`
 
-* Writing tests
-* Code review - No Lint errors allowed
-* Other guidelines
+- Database configuration
+- How to run tests
+- Deployment instructions
 
-### Version ###
-* v1.0 - start in July 2019
+### Contribution guidelines
+
+- Writing tests
+- Code review - No Lint errors allowed
+- Other guidelines
+
+### Version
+
+- v1.0 - start in July 2019
