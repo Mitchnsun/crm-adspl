@@ -1,9 +1,10 @@
+import Title from '../frameworks/Title';
 import Layout from '../components/Layout.js';
 // import fetch from 'isomorphic-unfetch';
 
 const Ticket = props => (
   <Layout>
-    <h1>{props.title || 'Title'}</h1>
+    <Title type="primary">{props.title || 'Title'}</Title>
     <p>Ticket #{props.id || 'ID'}</p>
   </Layout>
 );

@@ -1,5 +1,6 @@
-import Layout from '../components/Layout.js';
 import Link from 'next/link';
+import Title from '../frameworks/Title';
+import Layout from '../components/Layout.js';
 
 function getTickets() {
   return [
@@ -36,14 +37,13 @@ const TicketLink = ({ ticket }) => (
 export default function Dashboard() {
   return (
     <Layout>
-      <h1>My Tickets</h1>
+      <Title type="primary">My Tickets</Title>
       <ul>
         {getTickets().map(ticket => (
           <TicketLink key={ticket.id} ticket={ticket} />
         ))}
       </ul>
       <style jsx>{`
-        h1,
         a {
           font-family: 'Arial';
         }

@@ -8,7 +8,7 @@ const Layout = props => (
     <div>{props.children}</div>
     <style jsx>{`
       div {
-        margin: 0 auto;
+        margin: 2em auto;
         width: 980px;
       }
     `}</style>

@@ -30,9 +30,9 @@ This README documents steps are necessary to get your application up and running
 
 ### Contribution guidelines
 
+- Frameworks: web components could be use anywhere, no specific rule from the CRM
 - Writing tests
 - Code review - No Lint errors allowed
-- Other guidelines
 
 ### Version
 
