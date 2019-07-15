@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import Title from '../frameworks/Title';
+import Link from '../frameworks/Link';
 import Layout from '../components/Layout.js';
 
 function getTickets() {
@@ -12,23 +12,13 @@ function getTickets() {
 
 const TicketLink = ({ ticket }) => (
   <li>
-    <Link as={`/t/${ticket.id}`} href={`/ticket?title=${ticket.title}`}>
-      <a>{ticket.title}</a>
+    <Link as={`/t/${ticket.id}`} url={`/ticket?title=${ticket.title}`}>
+      {ticket.title}
     </Link>
     <style jsx>{`
       li {
         list-style: none;
         margin: 5px 0;
-      }
-
-      a {
-        text-decoration: none;
-        color: blue;
-        font-family: 'Arial';
-      }
-
-      a:hover {
-        opacity: 0.6;
       }
     `}</style>
   </li>
