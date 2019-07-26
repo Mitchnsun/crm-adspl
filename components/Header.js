@@ -14,6 +14,11 @@ const Header = () => {
         <Link href="/frameworks">
           <a>Frameworks</a>
         </Link>
+        {session.isUserAdmin() && (
+          <Link href="/admin">
+            <a>Admin</a>
+          </Link>
+        )}
       </div>
 
       <button onClick={session.logout}>Déconnexion</button>

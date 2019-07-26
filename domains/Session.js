@@ -12,7 +12,7 @@ export default function createSession(drivers) {
     if (user) {
       isConnected = true;
       drivers.router.onConnect();
-      state.user = createUser(drivers)(user.uid);
+      state.user = createUser(drivers)(user.uid, user.role);
       listeners.notify(state);
     } else {
       if (isConnected) {
@@ -25,6 +25,7 @@ export default function createSession(drivers) {
   });
 
   return {
+    isUserAdmin: () => (state.user ? state.user.isAdmin() : false),
     login: drivers.auth.login,
     logout: drivers.auth.logout,
     listen: listeners.subscribe,

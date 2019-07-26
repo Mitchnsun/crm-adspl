@@ -7,6 +7,7 @@ export default function createDriver() {
       console.log('login');
       listeners.notify({
         uid: '1234567',
+        role: 'admin',
       });
     },
 
