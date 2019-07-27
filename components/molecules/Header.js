@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import Link from 'next/link';
-import colors from '../styles/colors';
-import SessionContext from '../utils/SessionContext';
+import colors from '../../styles/colors';
+import SessionContext from '../../utils/SessionContext';
 
 const Header = () => {
   const session = useContext(SessionContext);

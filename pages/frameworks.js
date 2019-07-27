@@ -1,8 +1,8 @@
-import Layout from '../components/Layout';
-import Title from '../frameworks/Title';
-import StatusChip from '../frameworks/StatusChip';
-import Link from '../frameworks/Link';
-import TableTickets from '../components/TableTickets';
+import Layout from '../components/organismes/Layout';
+import Title from '../components/atoms/Title';
+import StatusChip from '../components/atoms/StatusChip';
+import Link from '../components/atoms/Link';
+import TableTickets from '../components/molecules/TableTickets';
 
 const CHIP_STATUS = ['PENDING', 'IN_PROGRESS', 'BLOCKED', 'RESOLVED', 'CLOSED', 'NO_STATUS'];
 const TICKETS = [

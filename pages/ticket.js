@@ -1,5 +1,5 @@
-import Title from '../frameworks/Title';
-import Layout from '../components/Layout.js';
+import Title from '../components/atoms/Title';
+import Layout from '../components/organismes/Layout';
 // import fetch from 'isomorphic-unfetch';
 
 const Ticket = props => (

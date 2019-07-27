@@ -1,32 +1,37 @@
+import { set, get } from 'lodash';
 const db = {};
 
 export default function createDb() {
   return (name, uid) => {
-    if (!db[name]) {
-      db[name] = {};
+    const path = uid ? name + '.' + uid : name;
+
+    if (!get(db, path)) {
+      set(db, path, []);
     }
 
     let cpt = 0;
     return {
       generateId() {
-        return name + cpt++;
+        return path + cpt++;
       },
       getAll() {
-        return Promise.resolve(db[name][uid] || []);
+        return Promise.resolve(get(db, path) || []);
       },
       add(data) {
-        if (!db[name][uid]) {
-          db[name][uid] = [];
-        }
-        db[name][uid] = db[name][uid].concat([data]);
+        const actual = get(db, path) || [];
+        set(db, path, actual.concat([data]));
         return Promise.resolve();
       },
+      get(id) {
+        const data = get(db, path + '.' + id);
+        return data ? Promise.resolve(data) : Promise.reject(new Error('Not found'));
+      },
       remove(id) {
-        db[name] = db[name][uid].filter(d => d.id !== id);
+        set(db, path, get(db, path).filter(d => d.id !== id));
         return Promise.resolve();
       },
       update(datas, event) {
-        db[name][uid] = db[name][uid].map(d => {
+        const newValue = get(db, path).map(d => {
           if (d.id === datas.id) {
             const date = new Date();
             return {
@@ -43,7 +48,8 @@ export default function createDb() {
           }
           return d;
         });
-        return Promise.resolve();
+        set(db, path, newValue);
+        return Promise.resolve(newValue);
       },
     };
   };

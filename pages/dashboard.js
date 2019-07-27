@@ -1,6 +1,6 @@
-import Title from '../frameworks/Title';
-import Layout from '../components/Layout';
-import TableTickets from '../components/TableTickets';
+import Title from '../components/atoms/Title';
+import Layout from '../components/organismes/Layout';
+import TableTickets from '../components/molecules/TableTickets';
 import usePromise from '../utils/use-promise';
 
 export default function Dashboard({ user }) {

@@ -1,4 +1,5 @@
 import createUser from './User';
+import createAdmin from './Admin';
 export default function createSession(drivers) {
   let isConnected = false;
 
@@ -6,13 +7,16 @@ export default function createSession(drivers) {
     user: null,
   };
 
-  const listeners = drivers.createListener();
+  const listeners = drivers.createListener(state);
 
   let unsub = drivers.auth.listen(user => {
     if (user) {
       isConnected = true;
       drivers.router.onConnect();
       state.user = createUser(drivers)(user.uid, user.role);
+      if (state.user.isAdmin()) {
+        state.user = createAdmin(drivers)(state.user);
+      }
       listeners.notify(state);
     } else {
       if (isConnected) {
@@ -26,6 +30,7 @@ export default function createSession(drivers) {
 
   return {
     isUserAdmin: () => (state.user ? state.user.isAdmin() : false),
+    getCurrentUser: () => state.user,
     login: drivers.auth.login,
     logout: drivers.auth.logout,
     listen: listeners.subscribe,

@@ -1,6 +1,6 @@
-import Link from '../frameworks/Link';
-import StatusChip from '../frameworks/StatusChip';
-import colors from '../styles/colors';
+import Link from '../atoms/Link';
+import StatusChip from '../atoms/StatusChip';
+import colors from '../../styles/colors';
 
 const TicketLink = ({ ticket }) => (
   <tr>

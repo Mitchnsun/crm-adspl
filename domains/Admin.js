@@ -1,12 +1,10 @@
+import createAgents from './Agents';
+
 export default function createAdmin(drivers) {
-  return {
-    getUsers() {
-      return Promise.resolve([]);
-    },
-    addUser({ firstname, lastname }) {},
-    getUser(id) {
-      return Promise.reject(new Error('No found!'));
-    },
-    removeUser(id) {},
+  return user => {
+    return {
+      ...user,
+      agents: createAgents(drivers),
+    };
   };
 }
