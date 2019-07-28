@@ -4,6 +4,7 @@ import TableTickets from '../components/molecules/TableTickets';
 import usePromise from '../utils/use-promise';
 
 export default function Dashboard({ user }) {
+  if (!user) return null;
   const { data } = usePromise(user.tickets.getAll(), []);
 
   return (
