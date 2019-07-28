@@ -1,7 +1,6 @@
 import App, { Container } from 'next/app';
 
 import init from '../front-init';
-import LoginPage from './login';
 import SessionContext from '../utils/SessionContext';
 
 const { session } = init();
@@ -25,7 +24,7 @@ class MyApp extends App {
     return { pageProps };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.unsubSession = session.listen(({ user }) => {
       this.setState({ user });
     });
@@ -38,13 +37,10 @@ class MyApp extends App {
 
   render() {
     const { Component, pageProps } = this.props;
-
-    const { user } = this.state;
-
     return (
       <Container>
         <SessionContext.Provider value={session}>
-          {!user ? <LoginPage {...pageProps} {...this.state} /> : <Component {...pageProps} {...this.state} />}
+          <Component {...pageProps} {...this.state} />
         </SessionContext.Provider>
       </Container>
     );

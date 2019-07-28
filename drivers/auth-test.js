@@ -1,36 +1,28 @@
 import createListener from './listeners-test';
 import createDb from './db-test';
 
-export default function createDriver() {
+let cpt = 0;
+export default function createDriver(config = {}) {
   const listeners = createListener();
 
-  const db = createDb();
-  const dbAgents = db('agents');
+  const db = createDb()('auth');
+
+  if (config.add) {
+    config.add.forEach(db.add);
+  }
 
   return {
-    login(login, password) {
-      let user = null;
-
-      if (login === 'agent' && password === 'coulson') {
-        user = {
-          uid: '1234',
-          role: 'agent',
-        };
-      }
-
-      if (login === 'jar' && password === 'vis') {
-        user = {
-          uid: '1234',
-          role: 'admin',
-        };
-      }
-
-      if (!user) {
+    async login(login, password) {
+      try {
+        const user = await db.get(login);
+        if (user.password !== password) {
+          return Promise.reject(new Error('Wrong password'));
+        }
+        listeners.notify({ uid: user.uid });
+        return Promise.resolve(user.uid);
+      } catch (e) {
         return Promise.reject(new Error('User not found'));
       }
-
-      listeners.notify(user);
-      return Promise.resolve(user);
     },
 
     logout() {
@@ -38,8 +30,13 @@ export default function createDriver() {
       return Promise.resolve();
     },
 
-    createAccount(params) {
-      return dbAgents.add({ id: dbAgents.generateId(), ...params });
+    createAccount({ email, password }) {
+      const uid = cpt++;
+
+      return db.add({ id: email, uid, password }).then(() => {
+        listeners.notify({ uid });
+        return uid;
+      });
     },
 
     listen: listeners.subscribe,

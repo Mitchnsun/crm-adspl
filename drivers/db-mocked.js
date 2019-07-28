@@ -11,19 +11,33 @@ export default function createDbMocked() {
     { id: 3, title: 'Email oublié', status: 'PENDING', author: 'Enguerran Brembilla' },
   ].forEach(dbTickets.add);
 
-  const dbAgents = db('agents');
+  const dbAuth = db('auth');
   [
-    { id: 1, firstname: 'Nick', lastname: 'Fury', email: 'nick.fury@yopmail.com', password: 'toto', isActive: true },
-    { id: 2, firstname: 'Tony', lastname: 'Stark', email: 'tony.stark@yopmail.com', password: 'toto', isActive: true },
+    {
+      uid: 1,
+      id: 'admin',
+      password: 'admin',
+    },
+    {
+      uid: 2,
+      id: 'agent',
+      password: 'agent',
+    },
+  ].forEach(dbAuth.add);
+
+  const dbUsers = db('users');
+  [
+    { id: 1, firstname: 'Nick', lastname: 'Fury', email: 'nick.fury@yopmail.com', isActive: true, role: 'admin' },
+    { id: 2, firstname: 'Tony', lastname: 'Stark', email: 'tony.stark@yopmail.com', isActive: true, role: 'agent' },
     {
       id: 3,
       firstname: 'Peter',
       lastname: 'Parker',
       email: 'peter.parker@yopmail.com',
-      password: 'toto',
       isActive: false,
+      role: 'agent',
     },
-  ].forEach(dbAgents.add);
+  ].forEach(dbUsers.add);
 
   return db;
 }

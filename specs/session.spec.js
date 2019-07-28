@@ -4,7 +4,35 @@ import defer from './defer';
 import { fail } from 'assert';
 
 function initSession() {
-  return createSession(getDrivers());
+  return createSession(
+    getDrivers({
+      auth: {
+        add: [{ uid: '1234', id: 'agent', password: 'coulson' }, { uid: '3456', id: 'tony', password: 'stark' }],
+      },
+      db: {
+        users: {
+          add: [
+            {
+              id: '1234',
+              firstname: 'Agent',
+              lastname: 'Coulson',
+              email: 'agent.coulson@yopmail.com',
+              isActive: true,
+              role: 'agent',
+            },
+            {
+              id: '3456',
+              firstname: 'Tony',
+              lastname: 'Stark',
+              email: 'tony.stark@yopmail.com',
+              isActive: true,
+              role: 'admin',
+            },
+          ],
+        },
+      },
+    }),
+  );
 }
 
 function sessionChange(session) {
@@ -23,7 +51,7 @@ describe('Session', () => {
 
       expect(session.getCurrentUser()).toBe(null);
 
-      session.login('agent', 'coulson');
+      await session.login('agent', 'coulson');
 
       const user = await sessionChange(session);
 
@@ -39,11 +67,11 @@ describe('Session', () => {
 
       expect(session.getCurrentUser()).toBe(null);
 
-      session.login('jar', 'vis');
+      await session.login('tony', 'stark');
 
       const user = await sessionChange(session);
 
-      expect(user.uid).toBe('1234');
+      expect(user.uid).toBe('3456');
       expect(user.isAdmin()).toBe(true);
 
       expect(user).toEqual(session.getCurrentUser());
@@ -61,12 +89,23 @@ describe('Session', () => {
         .catch(e => expect(e.message).toEqual('User not found'));
     });
 
+    it('should be not be able to log in if not active', async () => {
+      const session = initSession();
+
+      expect(session.getCurrentUser()).toBe(null);
+
+      return session
+        .login('Mario', 'Bros')
+        .then(() => fail('It should be rejected!'))
+        .catch(e => expect(e.message).toEqual('User not found'));
+    });
+
     it('should be able to log out', async () => {
       const session = initSession();
 
-      session.login('jar', 'vis');
+      await session.login('tony', 'stark');
       const user = await sessionChange(session);
-      expect(user.uid).toBe('1234');
+      expect(user.uid).toBe('3456');
 
       session.logout();
       const value = await sessionChange(session);
@@ -86,19 +125,19 @@ describe('Session', () => {
           email: 'bruce.banner@yopmail.com',
           password: 'hulk',
         })
-        .catch(() => fail('It should be resolved!'));
+        .catch(e => fail('It should be resolved!' + e.message));
 
-      session.login('jar', 'vis');
+      await session.login('tony', 'stark');
       const user = await sessionChange(session);
 
-      const agents = await user.agents.fetch();
-      expect(agents.find(a => a.firstname === 'Bruce')).toEqual({
+      const users = await user.users.fetch();
+      expect(users.find(a => a.firstname === 'Bruce')).toEqual({
         id: expect.anything(),
         firstname: 'Bruce',
         lastname: 'Banner',
         email: 'bruce.banner@yopmail.com',
-        password: 'hulk',
         isActive: false,
+        role: 'agent',
       });
     });
 

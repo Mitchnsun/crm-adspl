@@ -3,11 +3,11 @@ import createRouter from '../drivers/router-test';
 import createDb from '../drivers/db-test';
 import createListener from '../drivers/listeners-test';
 
-export default function getDrivers() {
+export default function getDrivers(config = {}) {
   return {
-    auth: createAuth(),
+    auth: createAuth(config.auth),
     router: createRouter(),
-    db: createDb(),
+    db: createDb(config.db),
     createListener,
   };
 }

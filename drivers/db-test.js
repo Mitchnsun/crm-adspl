@@ -1,8 +1,8 @@
 import { set, get } from 'lodash';
 const db = {};
 
-export default function createDb() {
-  return (name, uid) => {
+export default function createDb(config) {
+  const res = (name, uid) => {
     const path = uid ? name + '.' + uid : name;
 
     if (!get(db, path)) {
@@ -11,6 +11,9 @@ export default function createDb() {
 
     let cpt = 0;
     return {
+      reset: () => {
+        set(db, path, []);
+      },
       generateId() {
         return path + cpt++;
       },
@@ -23,28 +26,18 @@ export default function createDb() {
         return Promise.resolve();
       },
       get(id) {
-        const data = get(db, path + '.' + id);
-        return data ? Promise.resolve(data) : Promise.reject(new Error('Not found'));
+        console.debug(name, 'get', id, db[name]);
+        const data = get(db, path).find(u => u.id === id) || null;
+        return Promise.resolve(data);
       },
       remove(id) {
         set(db, path, get(db, path).filter(d => d.id !== id));
         return Promise.resolve();
       },
-      update(datas, event) {
+      update(data) {
         const newValue = get(db, path).map(d => {
-          if (d.id === datas.id) {
-            const date = new Date();
-            return {
-              ...datas,
-              [event.field]: event.value,
-              _history: (datas._history || []).concat([
-                {
-                  ...event,
-                  _date: date,
-                },
-              ]),
-              _lastUpdate: date,
-            };
+          if (d.id === data.id) {
+            return data;
           }
           return d;
         });
@@ -53,4 +46,13 @@ export default function createDb() {
       },
     };
   };
+
+  if (config) {
+    Object.keys(config).forEach(dbName => {
+      const d = res(dbName);
+      config[dbName].add.forEach(d.add);
+    });
+  }
+
+  return res;
 }

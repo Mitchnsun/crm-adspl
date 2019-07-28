@@ -9,11 +9,11 @@ export default function createSession(drivers) {
 
   const listeners = drivers.createListener(state);
 
-  let unsub = drivers.auth.listen(user => {
-    if (user) {
+  let unsub = drivers.auth.listen(async userAuth => {
+    if (userAuth) {
+      const user = await dbUsers.get(userAuth.uid);
       isConnected = true;
-      drivers.router.onConnect();
-      state.user = createUser(drivers)(user.uid, user.role);
+      state.user = createUser(drivers)(user.id, user.role);
       if (state.user.isAdmin()) {
         state.user = createAdmin(drivers)(state.user);
       }
@@ -27,11 +27,19 @@ export default function createSession(drivers) {
       }
     }
   });
-
+  const dbUsers = drivers.db('users');
   return {
     isUserAdmin: () => (state.user ? state.user.isAdmin() : false),
     getCurrentUser: () => state.user,
-    login: drivers.auth.login,
+    login: async (login, password) => {
+      const uid = await drivers.auth.login(login, password);
+      const user = await dbUsers.get(uid);
+      if (!user || !user.isActive) {
+        return drivers.auth.logout().then(() => Promise.reject(new Error('User no exist or disabled')));
+      }
+      drivers.router.onConnect();
+      return uid;
+    },
     logout: drivers.auth.logout,
     createAccount: params => {
       const requiredValues = ['firstname', 'lastname', 'email', 'password'];
@@ -40,9 +48,24 @@ export default function createSession(drivers) {
       if (errors.length > 0) {
         return Promise.reject(new Error(`Missing required value! [${errors.join(',')}]`));
       }
-      return drivers.auth.createAccount({ ...params, isActive: false });
+      const { firstname, lastname, email, password } = params;
+      return drivers.auth.createAccount({ email, password }).then(id => {
+        return dbUsers.add({
+          firstname,
+          lastname,
+          email,
+          isActive: false,
+          id,
+          role: 'agent',
+        });
+      });
     },
-    listen: listeners.subscribe,
+    listen: cb => {
+      if (!isConnected) {
+        drivers.router.onDisconnect();
+      }
+      return listeners.subscribe(cb);
+    },
     unsub,
   };
 }

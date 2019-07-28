@@ -1,10 +1,10 @@
-import createAgents from './Agents';
+import createUsers from './Users';
 
 export default function createAdmin(drivers) {
   return user => {
     return {
       ...user,
-      agents: createAgents(drivers),
+      users: createUsers(drivers),
     };
   };
 }

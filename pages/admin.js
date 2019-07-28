@@ -3,42 +3,38 @@ import Layout from '../components/organismes/Layout';
 import SessionContext from '../utils/SessionContext';
 import useObservable from '../utils/use-observable';
 
-function Agents() {
+function Users() {
   const session = useContext(SessionContext);
-  if (!session.isUserAdmin) return null;
+  if (!session.isUserAdmin()) return null;
 
-  const user = session.getCurrentUser();
-  const { data } = useObservable(user.agents.getObservable(), user.agents.fetch);
+  const admin = session.getCurrentUser();
+  const { data } = useObservable(admin.users.getObservable(), admin.users.fetch, []);
 
-  const grouped = user.agents.groupByStatus(data);
+  const grouped = admin.users.groupByStatus((data || []).filter(u => u.id !== admin.uid));
 
   return (
     <div>
-      <h2>Agents</h2>
+      <h2>Users</h2>
       <h3>Actives</h3>
-      {grouped.actives.map(agent => {
+      {grouped.actives.map(user => {
         return (
-          <div key={agent.id}>
+          <div key={user.id}>
             <span>
-              {agent.firstname} {agent.lastname} {agent.isActive}{' '}
+              {user.firstname} {user.lastname} {user.isActive}{' '}
             </span>
-            <button onClick={() => (agent.isActive ? user.agents.disable(agent) : user.agents.enable(agent))}>
-              {agent.isActive ? 'Inactive' : 'Active'}
-            </button>
+            <button onClick={() => admin.users.disable(user)}>Inactive</button>
           </div>
         );
       })}
 
       <h3>Inactives</h3>
-      {grouped.inactives.map(agent => {
+      {grouped.inactives.map(user => {
         return (
-          <div key={agent.id}>
+          <div key={user.id}>
             <span>
-              {agent.firstname} {agent.lastname} {agent.isActive}{' '}
+              {user.firstname} {user.lastname} {user.isActive}{' '}
             </span>
-            <button onClick={() => (agent.isActive ? user.agents.disable(agent) : user.agents.enable(agent))}>
-              {agent.isActive ? 'Inactive' : 'Active'}
-            </button>
+            <button onClick={() => admin.users.enable(user)}>Active</button>
           </div>
         );
       })}
@@ -50,7 +46,7 @@ export default function admin() {
   return (
     <Layout>
       <h1>Admin</h1>
-      <Agents />
+      <Users />
     </Layout>
   );
 }
