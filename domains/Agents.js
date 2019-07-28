@@ -6,10 +6,13 @@ export default function createAgents(drivers) {
 
   return {
     fetch() {
-      dbAgents
+      return dbAgents
         .getAll()
         .then(r => r.map(createAgent))
-        .then(a => agents.replace(a));
+        .then(a => {
+          agents.replace(a);
+          return a;
+        });
     },
     getObservable() {
       return agents;

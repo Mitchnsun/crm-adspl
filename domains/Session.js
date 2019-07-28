@@ -33,6 +33,15 @@ export default function createSession(drivers) {
     getCurrentUser: () => state.user,
     login: drivers.auth.login,
     logout: drivers.auth.logout,
+    createAccount: params => {
+      const requiredValues = ['firstname', 'lastname', 'email', 'password'];
+      const errors = requiredValues.map(v => (params[v] ? null : v)).filter(Boolean);
+
+      if (errors.length > 0) {
+        return Promise.reject(new Error(`Missing required value! [${errors.join(',')}]`));
+      }
+      return drivers.auth.createAccount({ ...params, isActive: false });
+    },
     listen: listeners.subscribe,
     unsub,
   };

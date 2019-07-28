@@ -1,6 +1,7 @@
 import createDb from './db-test';
 
 export default function createDbMocked() {
+  console.log('createDbMocked');
   const db = createDb();
   const dbTickets = db('tickets', '1234567');
 
@@ -12,9 +13,16 @@ export default function createDbMocked() {
 
   const dbAgents = db('agents');
   [
-    { id: 1, firstname: 'Nick', lastname: 'Fury' },
-    { id: 2, firstname: 'Tony', lastname: 'Stark' },
-    { id: 3, firstname: 'Peter', lastname: 'Parker' },
+    { id: 1, firstname: 'Nick', lastname: 'Fury', email: 'nick.fury@yopmail.com', password: 'toto', isActive: true },
+    { id: 2, firstname: 'Tony', lastname: 'Stark', email: 'tony.stark@yopmail.com', password: 'toto', isActive: true },
+    {
+      id: 3,
+      firstname: 'Peter',
+      lastname: 'Parker',
+      email: 'peter.parker@yopmail.com',
+      password: 'toto',
+      isActive: false,
+    },
   ].forEach(dbAgents.add);
 
   return db;
