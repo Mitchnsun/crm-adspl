@@ -17,16 +17,46 @@ export default function createDb(config) {
       generateId() {
         return path + cpt++;
       },
-      getAll() {
-        return Promise.resolve(get(db, path) || []);
+      getAll(paginationConfig = {}) {
+        let result = get(db, path) || [];
+
+        result.sort((a, b) => {
+          if (a.createAt === b.createAt) return 0;
+          return b.createAt - a.createAt;
+        });
+
+        if (name === 'tickets' || name === 'test') {
+          if (paginationConfig.follower) {
+            result = result.filter(r => r.followers.includes(paginationConfig.follower));
+          }
+
+          if (paginationConfig.status) {
+            result = result.filter(r => r.status === paginationConfig.status);
+          }
+        }
+
+        if (paginationConfig.startAfter) {
+          const i = result.indexOf(paginationConfig.startAfter);
+          result = result.slice(i + 1);
+        }
+
+        if (paginationConfig.limit) {
+          result = result.slice(0, paginationConfig.limit);
+        }
+
+        return Promise.resolve(result);
       },
       add(data) {
         const actual = get(db, path) || [];
-        set(db, path, actual.concat([data]));
+        if (name === 'tickets' || name === 'test') {
+          set(db, path, actual.concat([{ followers: [], status: 'PENDING', ...data }]));
+        } else {
+          set(db, path, actual.concat([data]));
+        }
+
         return Promise.resolve();
       },
       get(id) {
-        console.debug(name, 'get', id, db[name]);
         const data = get(db, path).find(u => u.id === id) || null;
         return Promise.resolve(data);
       },

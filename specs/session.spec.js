@@ -55,7 +55,7 @@ describe('Session', () => {
 
       const user = await sessionChange(session);
 
-      expect(user.uid).toBe('1234');
+      expect(user.id).toBe('1234');
       expect(user.isAdmin()).toBe(false);
 
       expect(user).toEqual(session.getCurrentUser());
@@ -71,7 +71,7 @@ describe('Session', () => {
 
       const user = await sessionChange(session);
 
-      expect(user.uid).toBe('3456');
+      expect(user.id).toBe('3456');
       expect(user.isAdmin()).toBe(true);
 
       expect(user).toEqual(session.getCurrentUser());
@@ -105,7 +105,7 @@ describe('Session', () => {
 
       await session.login('tony', 'stark');
       const user = await sessionChange(session);
-      expect(user.uid).toBe('3456');
+      expect(user.id).toBe('3456');
 
       session.logout();
       const value = await sessionChange(session);

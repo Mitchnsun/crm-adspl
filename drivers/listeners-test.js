@@ -16,6 +16,10 @@ export default function createListener(initialValue) {
       last = v;
       this.notify(v);
     },
+    updateWithMore(v) {
+      last = last.concat(v);
+      this.notify(last);
+    },
     notify(e) {
       listeners.forEach(f => f(e || last));
     },

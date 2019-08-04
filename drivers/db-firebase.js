@@ -25,28 +25,53 @@ export default function createDb() {
       generateId() {
         return db.ref(`${path}`).push().key;
       },
-      getAll() {
+      getAll(paginationConfig = {}) {
         return db
           .ref(`${path}`)
           .once('value')
           .then(snap => snap.val())
           .then(r => {
             if (r) {
-              return Object.keys(r)
+              let result = Object.keys(r)
                 .map(k => r[k])
                 .filter(d => !d._archived);
+
+              result.sort((a, b) => {
+                if (a.createAt === b.createAt) return 0;
+                return b.createAt - a.createAt;
+              });
+
+              if (paginationConfig.follower) {
+                result = result.filter(r => (r.followers || []).includes(paginationConfig.follower));
+              }
+
+              if (paginationConfig.status) {
+                result = result.filter(r => r.status === paginationConfig.status);
+              }
+
+              if (paginationConfig.startAfter) {
+                const i = result.findIndex(o => o.id === paginationConfig.startAfter.id);
+                result = result.slice(i + 1);
+              }
+
+              if (paginationConfig.limit) {
+                result = result.slice(0, paginationConfig.limit);
+              }
+
+              return result;
             }
             return [];
           });
       },
       get(id) {
+        console.log('get', `${path}/${id}`);
         return db
           .ref(`${path}/${id}`)
           .once('value')
           .then(snap => snap.val());
       },
       add(data) {
-        return db.ref(`${path}/${data.id}`).set(data);
+        return db.ref(`${path}/${data.id}`).set({ followers: [], status: 'PENDING', ...data });
       },
       remove(id) {
         return db.ref(`${path}/${id}/_archived`).set(true);

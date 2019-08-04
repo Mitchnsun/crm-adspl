@@ -1,12 +1,8 @@
-import createTickets from './Tickets';
-
 export default function createUser(drivers) {
-  const initUserTickets = createTickets(drivers);
-  return (uid, role) => {
+  return user => {
     return {
-      uid,
-      isAdmin: () => role === 'admin',
-      tickets: initUserTickets(uid),
+      ...user,
+      isAdmin: () => user.role === 'admin',
     };
   };
 }

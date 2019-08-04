@@ -9,7 +9,7 @@ const TicketLink = ({ ticket }) => (
     </td>
     <td>
       <Link as={`/t/${ticket.id}`} url={`/ticket?title=${ticket.title}`}>
-        {ticket.title}
+        {ticket.title} ({ticket.id}) ({ticket.createAt})
       </Link>
     </td>
     <td>{ticket.author}</td>

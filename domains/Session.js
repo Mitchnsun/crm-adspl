@@ -13,11 +13,12 @@ export default function createSession(drivers) {
     if (userAuth) {
       const user = await dbUsers.get(userAuth.uid);
       isConnected = true;
-      state.user = createUser(drivers)(user.id, user.role);
+      state.user = createUser(drivers)(user);
       if (state.user.isAdmin()) {
         state.user = createAdmin(drivers)(state.user);
       }
       listeners.notify(state);
+      drivers.router.onConnect();
     } else {
       if (isConnected) {
         isConnected = false;
@@ -61,9 +62,6 @@ export default function createSession(drivers) {
       });
     },
     listen: cb => {
-      if (!isConnected) {
-        drivers.router.onDisconnect();
-      }
       return listeners.subscribe(cb);
     },
     unsub,

@@ -3,7 +3,7 @@ import App, { Container } from 'next/app';
 import init from '../front-init';
 import SessionContext from '../utils/SessionContext';
 
-const { session } = init();
+const { session, Tickets } = init();
 
 class MyApp extends App {
   constructor() {
@@ -40,7 +40,7 @@ class MyApp extends App {
     return (
       <Container>
         <SessionContext.Provider value={session}>
-          <Component {...pageProps} {...this.state} />
+          <Component {...pageProps} {...this.state} Tickets={Tickets} />
         </SessionContext.Provider>
       </Container>
     );
