@@ -34,13 +34,13 @@ function MyTickets({ Tickets, user, visible }) {
 }
 
 function TicketsView({ Tickets, user }) {
-  const [filter, setFilter] = useState(MINE);
+  const [filter, setFilter] = useState(WAITING);
 
   return (
     <React.Fragment>
       <div>
-        <button onClick={() => setFilter(MINE)}>MINE</button>
         <button onClick={() => setFilter(WAITING)}>WAITING</button>
+        <button onClick={() => setFilter(MINE)}>MINE</button>
         <button onClick={() => setFilter(ALL)}>ALL</button>
       </div>
       <AllTickets Tickets={Tickets} visible={filter === ALL} />

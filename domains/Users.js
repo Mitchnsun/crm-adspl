@@ -3,6 +3,9 @@ export default function createUsers(drivers) {
   const users = drivers.createListener([], 'createAdmin');
 
   return {
+    getFullname(id) {
+      return id;
+    },
     fetch() {
       return dbUsers.getAll().then(a => {
         users.replace(a || []);

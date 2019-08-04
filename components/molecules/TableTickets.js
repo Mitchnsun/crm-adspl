@@ -8,7 +8,7 @@ const TicketLink = ({ ticket }) => (
       <StatusChip status={ticket.status} />
     </td>
     <td>
-      <Link as={`/t/${ticket.id}`} url={`/ticket?title=${ticket.title}`}>
+      <Link as={`/t/${ticket.id}`} url={`/ticket?id=${ticket.id}`}>
         {ticket.title} ({ticket.id}) ({ticket.createAt})
       </Link>
     </td>
