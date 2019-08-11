@@ -20,12 +20,10 @@ export default function createSession(drivers) {
       listeners.notify(state);
       drivers.router.onConnect();
     } else {
-      if (isConnected) {
-        isConnected = false;
-        drivers.router.onDisconnect();
-        state.user = null;
-        listeners.notify(state);
-      }
+      isConnected = false;
+      drivers.router.onDisconnect();
+      state.user = null;
+      listeners.notify(state);
     }
   });
   const dbUsers = drivers.db('users');

@@ -3,10 +3,14 @@ import Router from 'next/router';
 export default function createDriver() {
   return {
     onConnect: () => {
-      Router.push('/dashboard');
+      if (process.browser) {
+        Router.push('/');
+      }
     },
     onDisconnect: () => {
-      Router.push('/login');
+      if (process.browser) {
+        Router.push('/login');
+      }
     },
   };
 }

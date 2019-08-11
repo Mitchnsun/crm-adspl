@@ -50,7 +50,7 @@ function TicketsView({ Tickets, user }) {
   );
 }
 
-export default function Dashboard({ Tickets, user }) {
+export default function Index({ Tickets, user }) {
   return (
     <Layout>
       <Title type="primary">My Tickets</Title>

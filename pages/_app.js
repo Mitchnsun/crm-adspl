@@ -37,6 +37,7 @@ class MyApp extends App {
 
   render() {
     const { Component, pageProps } = this.props;
+    if (!this.state.user && this.props.router.route !== '/login') return null;
     return (
       <Container>
         <SessionContext.Provider value={session}>
