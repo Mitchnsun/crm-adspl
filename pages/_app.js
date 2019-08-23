@@ -2,8 +2,8 @@ import App, { Container } from 'next/app';
 
 import init from '../front-init';
 import SessionContext from '../utils/SessionContext';
-
-const { session, Tickets } = init();
+import { Authentication } from '../components/organismes/Authentication';
+const { session, Tickets, Adspl } = init();
 
 class MyApp extends App {
   constructor() {
@@ -24,24 +24,18 @@ class MyApp extends App {
     return { pageProps };
   }
 
-  componentDidMount() {
-    this.unsubSession = session.listen(({ user }) => {
-      this.setState({ user });
-    });
-  }
-
-  componentWillUnmount() {
-    if (this.unsubSession) this.unsubSession();
-    session.unsub();
+  componentDidCatch(err) {
+    console.error('CATCH', err);
   }
 
   render() {
     const { Component, pageProps } = this.props;
-    if (!this.state.user && this.props.router.route !== '/login') return null;
     return (
       <Container>
         <SessionContext.Provider value={session}>
-          <Component {...pageProps} {...this.state} Tickets={Tickets} />
+          <Authentication currentRoute={this.props.router.route}>
+            <Component {...pageProps} {...this.state} Tickets={Tickets} Adspl={Adspl} />
+          </Authentication>
         </SessionContext.Provider>
       </Container>
     );

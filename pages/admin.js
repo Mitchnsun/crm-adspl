@@ -1,13 +1,12 @@
 import { useContext } from 'react';
 import Layout from '../components/organismes/Layout';
-import SessionContext from '../utils/SessionContext';
+import UserContext from '../utils/UserContext';
 import useObservable from '../utils/use-observable';
 
 function Users() {
-  const session = useContext(SessionContext);
-  if (!session.isUserAdmin()) return null;
+  const admin = useContext(UserContext);
+  if (admin || admin.isAdmin()) return null;
 
-  const admin = session.getCurrentUser();
   const { data } = useObservable(admin.users.getObservable(), admin.users.fetch, []);
 
   const grouped = admin.users.groupByStatus((data || []).filter(u => u.id !== admin.uid));

@@ -1,20 +1,22 @@
 import { useContext } from 'react';
 import Link from 'next/link';
 import colors from '../../styles/colors';
+import UserContext from '../../utils/UserContext';
 import SessionContext from '../../utils/SessionContext';
 
 const Header = () => {
   const session = useContext(SessionContext);
+  const user = useContext(UserContext);
   return (
     <header>
       <div>
-        <Link href="/dashboard">
+        <Link href="/">
           <a>Dashboard</a>
         </Link>
-        <Link href="/frameworks">
-          <a>Frameworks</a>
+        <Link href="/adminAdspl">
+          <a>ADSPL</a>
         </Link>
-        {session.isUserAdmin() && (
+        {user && user.isAdmin() && (
           <Link href="/admin">
             <a>Admin</a>
           </Link>

@@ -2,15 +2,11 @@ import Router from 'next/router';
 
 export default function createDriver() {
   return {
-    onConnect: () => {
-      if (process.browser) {
-        Router.push('/');
-      }
+    onConnect: currentRoute => {
+      Router.push(currentRoute || '/');
     },
     onDisconnect: () => {
-      if (process.browser) {
-        Router.push('/login');
-      }
+      Router.push('/login');
     },
   };
 }

@@ -7,25 +7,6 @@ export default function createSession(drivers) {
     user: null,
   };
 
-  const listeners = drivers.createListener(state);
-
-  let unsub = drivers.auth.listen(async userAuth => {
-    if (userAuth) {
-      const user = await dbUsers.get(userAuth.uid);
-      isConnected = true;
-      state.user = createUser(drivers)(user);
-      if (state.user.isAdmin()) {
-        state.user = createAdmin(drivers)(state.user);
-      }
-      listeners.notify(state);
-      drivers.router.onConnect();
-    } else {
-      isConnected = false;
-      drivers.router.onDisconnect();
-      state.user = null;
-      listeners.notify(state);
-    }
-  });
   const dbUsers = drivers.db('users');
   return {
     isUserAdmin: () => (state.user ? state.user.isAdmin() : false),
@@ -59,9 +40,24 @@ export default function createSession(drivers) {
         });
       });
     },
-    listen: cb => {
-      return listeners.subscribe(cb);
+    listen: (cb, currentRoute) => {
+      return drivers.auth.listen(async userAuth => {
+        if (userAuth) {
+          const user = await dbUsers.get(userAuth.uid);
+          isConnected = true;
+          state.user = createUser(drivers)(user);
+          if (state.user.isAdmin()) {
+            state.user = createAdmin(drivers)(state.user);
+          }
+          cb(state);
+          drivers.router.onConnect(currentRoute);
+        } else {
+          isConnected = false;
+          drivers.router.onDisconnect();
+          state.user = null;
+          cb(state);
+        }
+      });
     },
-    unsub,
   };
 }
