@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "alias": "crm-adspl",
+  "name": "crm-adspl",
+  "builds": [
+    {
+      "src": "next.config.js",
+      "use": "@now/next"
+    }
+  ]
+}

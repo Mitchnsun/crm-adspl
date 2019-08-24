@@ -1,7 +1,7 @@
-import createAuth from './drivers/auth-firebase';
+import createAuth from './drivers/auth-test';
 import createRouter from './drivers/router-next';
-import createDb from './drivers/db-firebase';
-import createDbList from './drivers/db-firestore';
+import createDb from './drivers/db-test';
+import createDbList from './drivers/db-test';
 import createListener from './drivers/listeners-test';
 import createAdsplDriver from './drivers/adspl-firebase';
 
@@ -10,7 +10,7 @@ import createDbMocked from './drivers/db-mocked';
 import createTickets from './domains/Tickets';
 import createAdspl from './domains/Adspl';
 
-createDbMocked();
+// createDbMocked();
 
 export default function init() {
   const drivers = {

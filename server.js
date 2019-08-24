@@ -14,12 +14,6 @@ app
   .then(() => {
     const server = express();
 
-    server.get('/t/:id', (req, res) => {
-      const actualPage = '/ticket';
-      const queryParams = { id: req.params.id };
-      app.render(req, res, actualPage, queryParams);
-    });
-
     server.get('/_api/adspl/:id', (req, res) => {
       const { id } = req.params;
 
