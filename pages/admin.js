@@ -89,9 +89,9 @@ const machine = Machine({
 });
 
 function UsersView({ Users }) {
-  const user = useContext(UserContext);
+  const currentUser = useContext(UserContext);
 
-  if (!user || !user.isAdmin()) return null;
+  if (!currentUser || !currentUser.isAdmin()) return null;
 
   const [current, send] = useMachine(machine, {
     services: {
@@ -105,9 +105,7 @@ function UsersView({ Users }) {
     send('FETCH_USERS');
   }, []);
 
-  console.log('render', current);
-
-  const grouped = Users.groupByStatus(current.context.users.filter(u => u.id !== admin.uid));
+  const grouped = Users.groupByStatus(current.context.users.filter(u => u.id !== currentUser.uid));
 
   return (
     <div>
@@ -119,7 +117,9 @@ function UsersView({ Users }) {
             <span>
               {user.firstname} {user.lastname}
             </span>
-            <button onClick={() => send({ type: 'DISABLE_USER', user })}>Inactive</button>
+            {user.id !== currentUser.id && (
+              <button onClick={() => send({ type: 'DISABLE_USER', user })}>Inactive</button>
+            )}
           </div>
         );
       })}
@@ -131,7 +131,7 @@ function UsersView({ Users }) {
             <span>
               {user.firstname} {user.lastname}
             </span>
-            <button onClick={() => send({ type: 'ENABLE_USER', user })}>Active</button>
+            {user.id !== currentUser.id && <button onClick={() => send({ type: 'ENABLE_USER', user })}>Active</button>}
           </div>
         );
       })}

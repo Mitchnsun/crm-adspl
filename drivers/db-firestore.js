@@ -35,7 +35,6 @@ export default function createDb() {
         return db.collection(name).doc().id;
       },
       getAll(paginationConfig = {}) {
-        console.log('get all', paginationConfig);
         let query = collection.where('_archived', '==', false);
 
         if (name === 'tickets' || name === 'test') {
@@ -51,7 +50,6 @@ export default function createDb() {
         query = query.orderBy('createAt', 'desc');
 
         if (paginationConfig.startAfter) {
-          console.log('after', paginationConfig.startAfter);
           query = query.startAfter(paginationConfig.startAfter._doc);
         }
 
@@ -59,17 +57,20 @@ export default function createDb() {
           query = query.limit(paginationConfig.limit);
         }
 
-        return query.get().then(snapshot => {
-          if (snapshot.empty) {
-            return [];
-          }
-          const all = [];
-          snapshot.forEach(doc => {
-            const { _archived, ...data } = doc.data();
-            all.push({ ...data, _doc: doc });
-          });
-          return all;
-        });
+        return query
+          .get()
+          .then(snapshot => {
+            if (snapshot.empty) {
+              return [];
+            }
+            const all = [];
+            snapshot.forEach(doc => {
+              const { _archived, ...data } = doc.data();
+              all.push({ ...data, _doc: doc });
+            });
+            return all;
+          })
+          .catch(console.error);
       },
       get(id) {
         return collection

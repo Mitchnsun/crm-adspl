@@ -17,7 +17,7 @@ app
 
     server.get('/_api/adspl/:id', (req, res) => {
       const { id } = req.params;
-
+      console.log("/_api/adspl/:id'", id);
       adspl
         .get(id)
         .then(result => res.json(result))

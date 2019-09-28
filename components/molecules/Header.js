@@ -23,7 +23,13 @@ const Header = () => {
         )}
       </div>
 
-      <button onClick={session.logout}>Déconnexion</button>
+      <div>
+        <span style={{ color: 'white', marginRight: '1rem' }}>
+          {user.firstname} {user.lastname}
+        </span>
+        <button onClick={session.logout}>Déconnexion</button>
+      </div>
+
       <style jsx>{`
         header {
           background-color: ${colors.SKY_DARK};

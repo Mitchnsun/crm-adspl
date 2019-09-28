@@ -64,14 +64,16 @@ export default function createDb() {
           });
       },
       get(id) {
-        console.log('get', `${path}/${id}`);
         return db
           .ref(`${path}/${id}`)
           .once('value')
           .then(snap => snap.val());
       },
       add(data) {
-        return db.ref(`${path}/${data.id}`).set({ followers: [], status: 'PENDING', ...data });
+        if (name === 'tickets') {
+          return db.ref(`${path}/${data.id}`).set({ followers: [], status: 'PENDING', ...data });
+        }
+        return db.ref(`${path}/${data.id}`).set(data);
       },
       remove(id) {
         return db.ref(`${path}/${id}/_archived`).set(true);
