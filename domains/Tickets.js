@@ -1,6 +1,89 @@
+import { omit } from 'lodash';
+
+function applyEvent(ticket, event) {
+  switch (event.type) {
+    case 'update-description': {
+      return {
+        ...ticket,
+        _history: (ticket._history || []).concat([event]),
+        description: event.value,
+      };
+    }
+    case 'update-title': {
+      return {
+        ...ticket,
+        _history: (ticket._history || []).concat([event]),
+        title: event.value,
+      };
+    }
+    case 'reopen-ticket': {
+      return {
+        ...ticket,
+        _history: (ticket._history || []).concat([event]),
+        status: 'IN_PROGRESS',
+        comments: event.comment ? (ticket.comments || []).concat([event.comment]) : ticket.comments,
+      };
+    }
+    case 'close-ticket': {
+      return {
+        ...ticket,
+        _history: (ticket._history || []).concat([event]),
+        status: 'CLOSED',
+        comments: event.comment ? (ticket.comments || []).concat([event.comment]) : ticket.comments,
+      };
+    }
+    case 'add-comment': {
+      return {
+        ...ticket,
+        _history: (ticket._history || []).concat([event]),
+        comments: (ticket.comments || []).concat([event.value]),
+      };
+    }
+    case 'add-follower': {
+      return {
+        ...ticket,
+        _history: (ticket._history || []).concat([event]),
+        followers: ticket.followers.concat([event.value]),
+        status: ticket.status === 'PENDING' ? 'IN_PROGRESS' : ticket.status,
+      };
+    }
+    case 'remove-follower': {
+      const newFollowers = ticket.followers.filter(uid => uid !== event.value);
+      return {
+        ...ticket,
+        _history: (ticket._history || []).concat([event]),
+        followers: newFollowers,
+        status: ticket.status === 'IN_PROGRESS' && newFollowers.length === 0 ? 'PENDING' : ticket.status,
+      };
+    }
+    case 'update-comment': {
+      return {
+        ...ticket,
+        _history: (ticket._history || []).concat([event]),
+        comments: (ticket.comments || []).map(c => {
+          if (c.createAt === event.comment.createAt && c.by === event.comment.by) {
+            return {
+              _history: (event.comment._history || []).concat([omit(event.comment, '_history')]),
+              text: event.newText,
+              createAt: event.on,
+              by: event.by,
+            };
+          }
+          return c;
+        }),
+      };
+    }
+    default:
+      return ticket;
+  }
+}
+
 export default function createTickets(drivers, counters) {
   const dbTickets = drivers.dbList('tickets');
   const counter = counters.of('tickets');
+
+  const persist = ticket => dbTickets.update(ticket).then(() => ticket);
+
   return {
     defaultValue: [],
     followedBy: (ticket, user) => {
@@ -8,43 +91,22 @@ export default function createTickets(drivers, counters) {
     },
     fetchTicket: id => dbTickets.get(id),
     removeFollower: (ticket, user) => {
-      if (user && ticket.followers && ticket.followers.includes(user.id)) {
-        const status = ticket.followers.length === 1 ? 'PENDING' : 'IN_PROGRESS';
-        const updatedTicket = {
-          ...ticket,
-          status,
-          followers: ticket.followers.filter(uid => uid !== user.id),
-          _history: (ticket._history || []).concat([
-            {
-              update: 'followers-and-status',
-              removedFollower: user.id,
-              newStatus: status,
-              on: new Date().toISOString(),
-            },
-          ]),
-        };
-        return dbTickets.update(updatedTicket).then(() => updatedTicket);
-      }
-      return Promise.resolve(ticket);
+      const updatedTicket = applyEvent(ticket, {
+        type: 'remove-follower',
+        on: Date.now(),
+        by: user.id,
+        value: user.id,
+      });
+      return persist(updatedTicket);
     },
     addFollower: (ticket, user) => {
-      if (user && (!ticket.followers || !ticket.followers.includes(user.id))) {
-        const updatedTicket = {
-          ...ticket,
-          status: 'IN_PROGRESS',
-          followers: (ticket.followers || []).concat([user.id]),
-          _history: (ticket._history || []).concat([
-            {
-              update: 'followers-and-status',
-              addedFollower: user.id,
-              newStatus: 'IN_PROGRESS',
-              on: new Date().toISOString(),
-            },
-          ]),
-        };
-        return dbTickets.update(updatedTicket).then(() => updatedTicket);
-      }
-      return Promise.resolve(ticket);
+      const updatedTicket = applyEvent(ticket, {
+        type: 'add-follower',
+        on: Date.now(),
+        by: user.id,
+        value: user.id,
+      });
+      return persist(updatedTicket);
     },
     getAll: async config => {
       const all = await dbTickets.getAll(config);
@@ -62,105 +124,82 @@ export default function createTickets(drivers, counters) {
           ...params,
           createBy: user.id,
           author: user.firstname + ' ' + user.lastname,
+          _history: [],
         });
       });
     },
     addComment(params, user) {
-      if (!params || !user) return Promise.reject(new Error('Params ou user missing'));
-      if (!params.comment) return Promise.reject(new Error('Params comment missing'));
-      if (!params.ticket) return Promise.reject(new Error('Params ticket missing'));
-      const updatedTicket = {
-        ...params.ticket,
-        comments: (params.ticket.comments || []).concat([
-          {
-            text: params.comment,
-            by: user.id,
-            createAt: Date.now(),
-          },
-        ]),
-      };
-      return dbTickets.update(updatedTicket).then(() => {
-        return updatedTicket;
+      const updatedTicket = applyEvent(params.ticket, {
+        type: 'add-comment',
+        on: Date.now(),
+        by: user.id,
+        value: {
+          text: params.comment,
+          by: user.id,
+          createAt: Date.now(),
+        },
       });
+      return persist(updatedTicket);
     },
     updateComment(params, user) {
-      if (!params || !user) return Promise.reject(new Error('Params ou user missing'));
-      if (!params.comment) return Promise.reject(new Error('Params comment missing'));
-      if (!params.ticket) return Promise.reject(new Error('Params ticket missing'));
-      const updatedTicket = {
-        ...params.ticket,
-        comments: (params.ticket.comments || []).map(c => {
-          if (c.createAt === params.comment.createAt && c.by === params.comment.by) {
-            return params.comment;
-          }
-          return c;
-        }),
-      };
-      return dbTickets.update(updatedTicket).then(() => {
-        return updatedTicket;
+      const updatedTicket = applyEvent(params.ticket, {
+        type: 'update-comment',
+        on: Date.now(),
+        by: user.id,
+        comment: params.comment,
+        newText: params.newText,
       });
+      return persist(updatedTicket);
     },
     closeTicket(params, user) {
-      if (!params || !user) return Promise.reject(new Error('Params ou user missing'));
-      if (!params.ticket) return Promise.reject(new Error('Params ticket missing'));
-
-      const comments = params.ticket.comments || [];
-      const updatedTicket = {
-        ...params.ticket,
-        status: 'CLOSED',
-        comments: params.comment
-          ? comments.concat([
-              {
-                text: params.comment,
-                by: user.id,
-                createAt: Date.now(),
-              },
-            ])
-          : comments,
-      };
-      return dbTickets.update(updatedTicket).then(() => {
-        return updatedTicket;
+      const updatedTicket = applyEvent(params.ticket, {
+        type: 'close-ticket',
+        on: Date.now(),
+        by: user.id,
+        comment: params.comment
+          ? {
+              text: params.comment,
+              by: user.id,
+              createAt: Date.now(),
+            }
+          : null,
       });
+      return persist(updatedTicket);
     },
     reopenTicket(params, user) {
-      if (!params || !user) return Promise.reject(new Error('Params ou user missing'));
-      if (!params.ticket) return Promise.reject(new Error('Params ticket missing'));
-
-      const comments = params.ticket.comments || [];
-      const updatedTicket = {
-        ...params.ticket,
-        status: 'IN_PROGRESS',
-        comments: params.comment
-          ? comments.concat([
-              {
-                text: params.comment,
-                by: user.id,
-                createAt: Date.now(),
-              },
-            ])
-          : comments,
-      };
-      return dbTickets.update(updatedTicket).then(() => {
-        return updatedTicket;
+      const updatedTicket = applyEvent(params.ticket, {
+        type: 'reopen-ticket',
+        on: Date.now(),
+        by: user.id,
+        comment: params.comment
+          ? {
+              text: params.comment,
+              by: user.id,
+              createAt: Date.now(),
+            }
+          : null,
       });
+      return persist(updatedTicket);
     },
     updateTitle({ ticket, value }, user) {
-      const updatedTicket = {
-        ...ticket,
-        title: value,
-      };
-      return dbTickets.update(updatedTicket).then(() => {
-        return updatedTicket;
+      const updatedTicket = applyEvent(ticket, {
+        type: 'update-title',
+        on: Date.now(),
+        by: user.id,
+        value,
+        was: ticket.title,
       });
+      return persist(updatedTicket);
     },
     updateDescription({ ticket, value }, user) {
-      const updatedTicket = {
-        ...ticket,
-        description: value,
-      };
-      return dbTickets.update(updatedTicket).then(() => {
-        return updatedTicket;
+      const updatedTicket = applyEvent(ticket, {
+        type: 'update-description',
+        on: Date.now(),
+        by: user.id,
+        value,
+        was: ticket.description,
       });
+      return persist(updatedTicket);
     },
   };
 }

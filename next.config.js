@@ -16,7 +16,6 @@ module.exports = {
         systemvars: true,
       }),
     ];
-
     return config;
   },
 };

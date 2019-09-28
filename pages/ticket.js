@@ -302,7 +302,7 @@ const CommentBlock = ({ comment, onChange, getUserName }) => {
   const inputRef = createRef();
   const [current, send] = useMachine(editableMachine, {
     actions: {
-      save: (_, event) => onChange({ ...comment, text: event.value }),
+      save: (_, event) => onChange({ comment, newText: event.value }),
     },
   });
 
@@ -352,7 +352,10 @@ const Ticket = props => {
       addFollower: context => Tickets.addFollower(context.ticket, user),
       removeFollower: context => Tickets.removeFollower(context.ticket, user),
       addComment: (context, event) => Tickets.addComment({ ticket: context.ticket, comment: event.comment }, user),
-      updateComment: (context, event) => Tickets.updateComment({ ticket: context.ticket, comment: event.value }, user),
+      updateComment: (context, event) => {
+        console.log('event', event);
+        return Tickets.updateComment({ ticket: context.ticket, ...event.value }, user);
+      },
       closeTicket: (context, event) => Tickets.closeTicket({ ticket: context.ticket, comment: event.comment }, user),
       reopenTicket: (context, event) => Tickets.reopenTicket({ ticket: context.ticket, comment: event.comment }, user),
       updateTitle: (context, event) => Tickets.updateTitle({ ticket: context.ticket, value: event.value }, user),
@@ -369,7 +372,6 @@ const Ticket = props => {
   }, [ticketId]);
 
   const ticket = current.context.ticket;
-  console.log('current', current);
   if (!ticket) return null;
 
   const { author, status, title, followers, description, comments = [] } = ticket;
@@ -413,6 +415,7 @@ const Ticket = props => {
       <h2>Suivi</h2>
       {comments.map(comment => (
         <CommentBlock
+          key={comment.createAt}
           comment={comment}
           getUserName={Users.getFullname}
           onChange={value => send({ type: 'UPDATE_COMMENT', value })}
