@@ -1,8 +1,8 @@
 import { useContext } from 'react';
 import Link from 'next/link';
-import colors from '../../styles/colors';
 import UserContext from '../../utils/UserContext';
 import SessionContext from '../../utils/SessionContext';
+import colors from '../../styles/colors';
 
 const Header = () => {
   const session = useContext(SessionContext);
@@ -11,14 +11,14 @@ const Header = () => {
     <header>
       <div>
         <Link href="/">
-          <a>Dashboard</a>
+          <a>Tickets</a>
         </Link>
         <Link href="/adminAdspl">
           <a>ADSPL</a>
         </Link>
         {user && user.isAdmin() && (
           <Link href="/admin">
-            <a>Admin</a>
+            <a>Users</a>
           </Link>
         )}
       </div>
@@ -26,7 +26,7 @@ const Header = () => {
       <button onClick={session.logout}>Déconnexion</button>
       <style jsx>{`
         header {
-          background-color: ${colors.BLACK};
+          background-color: ${colors.SKY_DARK};
           font-size: 14px;
           line-height: 1.5;
           padding: 16px;

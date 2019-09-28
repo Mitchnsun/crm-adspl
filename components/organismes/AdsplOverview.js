@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { get } from 'lodash';
 import moment from 'moment';
+import colors from '../../styles/colors';
 
 function Line({ item, date, name, renderSummary = () => null, renderDetails = () => null }) {
   const [openDetails, setOpenDetails] = useState(false);
@@ -14,15 +15,15 @@ function Line({ item, date, name, renderSummary = () => null, renderDetails = ()
       <div
         style={{
           display: 'flex',
-          border: '1px solid black',
+          border: `1px solid ${colors.SKY_DARK}`,
           borderRadius: openDetails || openRaw ? 0 : '5px',
           alignItems: 'center',
         }}
       >
-        <div style={{ marginRight: '1rem', backgroundColor: 'black', color: 'white', padding: '0.5rem 1rem' }}>
+        <div style={{ marginRight: '1rem', backgroundColor: colors.SKY_DARK, color: 'white', padding: '0.5rem 1rem' }}>
           {moment(date).format('DD/MM/YYYY HH:mm:ss')}
         </div>
-        <div style={{ marginRight: '1rem', fontWeight: 'bold' }}>{name}</div>
+        <div style={{ marginRight: '1rem', fontWeight: 'bold', color: colors.SKY_DARK }}>{name}</div>
         <div style={{ flex: 1, marginRight: '1rem' }}>{renderSummary()}</div>
         <div>
           <button className={openDetails ? 'open' : ''} onClick={() => setOpenDetails(!openDetails)}>
@@ -33,14 +34,14 @@ function Line({ item, date, name, renderSummary = () => null, renderDetails = ()
           </button>
           <style jsx>{`
             button {
-              border: 1px solid black;
+              border: 1px solid ${colors.SKY_DARK};
               border-radius: 5px;
               cursor: pointer;
               margin-right 5px;
             }
             button.open {
               color: white;
-              background-color: black;
+              background-color: ${colors.SKY_DARK};
             }
           `}</style>
         </div>
@@ -48,9 +49,9 @@ function Line({ item, date, name, renderSummary = () => null, renderDetails = ()
       {(openDetails || openRaw) && (
         <div
           style={{
-            borderBottom: '1px solid black',
-            borderLeft: '1px solid black',
-            borderRight: '1px solid black',
+            borderBottom: `1px solid ${colors.SKY_DARK}`,
+            borderLeft: `1px solid ${colors.SKY_DARK}`,
+            borderRight: `1px solid ${colors.SKY_DARK}`,
 
             //borderRadius: openDetails || openRaw ? '5px' : 0,
             padding: '1rem',
@@ -308,7 +309,7 @@ export function AdsplOverview({ data }) {
           background-color: purple;
         }
         button {
-          border: 1px solid black;
+          border: 1px solid ${colors.SKY_DARK};
           border-radius: 5px;
         }
       `}</style>

@@ -1,9 +1,10 @@
-import App, { Container } from 'next/app';
+import App from 'next/app';
 
 import init from '../front-init';
 import SessionContext from '../utils/SessionContext';
 import { Authentication } from '../components/organismes/Authentication';
-const { session, Tickets, Adspl } = init();
+import colors from '../styles/colors';
+const { session, Tickets, Users, Adspl } = init();
 
 class MyApp extends App {
   constructor() {
@@ -31,13 +32,16 @@ class MyApp extends App {
   render() {
     const { Component, pageProps } = this.props;
     return (
-      <Container>
-        <SessionContext.Provider value={session}>
-          <Authentication currentRoute={this.props.router.route}>
-            <Component {...pageProps} {...this.state} Tickets={Tickets} Adspl={Adspl} />
-          </Authentication>
-        </SessionContext.Provider>
-      </Container>
+      <SessionContext.Provider value={session}>
+        <Authentication currentRoute={this.props.router.route}>
+          <Component {...pageProps} {...this.state} Users={Users} Tickets={Tickets} Adspl={Adspl} />
+        </Authentication>
+        <style jsx global>{`
+          * {
+            color: ${colors.SKY_DARK};
+          }
+        `}</style>
+      </SessionContext.Provider>
     );
   }
 }

@@ -6,6 +6,7 @@ import { useMachine } from '@xstate/react';
 import { AdsplOverview } from '../components/organismes/AdsplOverview';
 import UserContext from '../utils/UserContext';
 import { render } from '../utils/render-machine';
+import colors from '../styles/colors';
 
 const machine = Machine({
   id: 'fetch',
@@ -76,6 +77,20 @@ export default function adminAdspl({ Adspl }) {
       <div>
         <input type="text" ref={idRef} placeholder="Siret/Siren" />
         <button onClick={() => send({ type: 'SEARCH', id: idRef.current.value })}>GO</button>
+        <style jsx>{`
+          input {
+            padding: 0.5rem;
+            border-radius: 5px 0 0 5px;
+            border: 1px solid ${colors.SKY_DARK};
+          }
+          button {
+            padding: 0.5rem;
+            border-radius: 0 5px 5px 0;
+            border: 1px solid ${colors.SKY_DARK};
+            background-color: ${colors.SKY_DARK};
+            color: white;
+          }
+        `}</style>
       </div>
 
       {render(current, {

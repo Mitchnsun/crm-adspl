@@ -1,9 +1,21 @@
-const { parsed: localEnv } = require('dotenv').config();
-const webpack = require('webpack');
+require('dotenv').config();
+
+const path = require('path');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
-  webpack(config) {
-    config.plugins.push(new webpack.EnvironmentPlugin(localEnv));
+  webpack: config => {
+    config.plugins = config.plugins || [];
+
+    config.plugins = [
+      ...config.plugins,
+
+      // Read the .env file
+      new Dotenv({
+        path: path.join(__dirname, '.env-now'),
+        systemvars: true,
+      }),
+    ];
 
     return config;
   },

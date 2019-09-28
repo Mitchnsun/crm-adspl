@@ -1,15 +1,113 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import Layout from '../components/organismes/Layout';
 import UserContext from '../utils/UserContext';
-import useObservable from '../utils/use-observable';
+import { assign, Machine } from 'xstate';
+import { useMachine } from '@xstate/react';
 
-function Users() {
-  const admin = useContext(UserContext);
-  if (admin || admin.isAdmin()) return null;
+const machine = Machine({
+  id: 'users',
+  initial: 'idle',
+  context: {
+    users: [],
+    error: null,
+  },
+  states: {
+    idle: {
+      on: {
+        FETCH_USERS: {
+          target: 'loading',
+        },
+      },
+    },
+    loading: {
+      invoke: {
+        src: 'fetchUsers',
+        onDone: {
+          target: 'success',
+          actions: assign({
+            users: (_, event) => event.data || [],
+            error: () => null,
+          }),
+        },
+        onError: {
+          target: 'failure',
+          actions: assign({
+            error: (_, event) => event.data,
+            users: () => [],
+          }),
+        },
+      },
+    },
+    success: {
+      on: {
+        ENABLE_USER: 'enablingUser',
+        DISABLE_USER: 'disablingUser',
+      },
+    },
+    failure: {
+      on: {
+        RETRY: 'loading',
+      },
+    },
+    disablingUser: {
+      invoke: {
+        src: 'disableUser',
+        onDone: {
+          target: 'success',
+          actions: assign({
+            users: (context, event) => context.users.map(u => (u.id === event.data.id ? event.data : u)),
+            error: () => null,
+          }),
+        },
+        onError: {
+          target: 'failure',
+          actions: assign({
+            error: (_, event) => event.data,
+          }),
+        },
+      },
+    },
+    enablingUser: {
+      invoke: {
+        src: 'enableUser',
+        onDone: {
+          target: 'success',
+          actions: assign({
+            users: (context, event) => context.users.map(u => (u.id === event.data.id ? event.data : u)),
+            error: () => null,
+          }),
+        },
+        onError: {
+          target: 'failure',
+          actions: assign({
+            error: (_, event) => event.data,
+          }),
+        },
+      },
+    },
+  },
+});
 
-  const { data } = useObservable(admin.users.getObservable(), admin.users.fetch, []);
+function UsersView({ Users }) {
+  const user = useContext(UserContext);
 
-  const grouped = admin.users.groupByStatus((data || []).filter(u => u.id !== admin.uid));
+  if (!user || !user.isAdmin()) return null;
+
+  const [current, send] = useMachine(machine, {
+    services: {
+      fetchUsers: () => Users.fetch(),
+      enableUser: (_, event) => Users.enable(event.user),
+      disableUser: (_, event) => Users.disable(event.user),
+    },
+  });
+
+  useEffect(() => {
+    send('FETCH_USERS');
+  }, []);
+
+  console.log('render', current);
+
+  const grouped = Users.groupByStatus(current.context.users.filter(u => u.id !== admin.uid));
 
   return (
     <div>
@@ -19,9 +117,9 @@ function Users() {
         return (
           <div key={user.id}>
             <span>
-              {user.firstname} {user.lastname} {user.isActive}{' '}
+              {user.firstname} {user.lastname}
             </span>
-            <button onClick={() => admin.users.disable(user)}>Inactive</button>
+            <button onClick={() => send({ type: 'DISABLE_USER', user })}>Inactive</button>
           </div>
         );
       })}
@@ -31,9 +129,9 @@ function Users() {
         return (
           <div key={user.id}>
             <span>
-              {user.firstname} {user.lastname} {user.isActive}{' '}
+              {user.firstname} {user.lastname}
             </span>
-            <button onClick={() => admin.users.enable(user)}>Active</button>
+            <button onClick={() => send({ type: 'ENABLE_USER', user })}>Active</button>
           </div>
         );
       })}
@@ -41,11 +139,11 @@ function Users() {
   );
 }
 
-export default function admin() {
+export default function admin({ Users }) {
   return (
     <Layout>
       <h1>Admin</h1>
-      <Users />
+      <UsersView Users={Users} />
     </Layout>
   );
 }

@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
 import { Machine, assign } from 'xstate';
 
-import Title from '../components/atoms/Title';
+import Link from '../components/atoms/Link';
 import Layout from '../components/organismes/Layout';
 import TableTickets from '../components/molecules/TableTickets';
 import { useMachine } from '@xstate/react';
 import UserContext from '../utils/UserContext';
+import colors from '../styles/colors';
 
 const machine = Machine({
   id: 'tickets',
@@ -200,21 +201,36 @@ function TicketsView({ Tickets }) {
 
   return (
     <React.Fragment>
-      <div>
-        <button className={waitingTab ? 'active' : ''} onClick={() => send('LOAD_TAB_WAITING')}>
-          WAITING
-        </button>
-        <button className={mineTab ? 'active' : ''} onClick={() => send('LOAD_TAB_MINE')}>
-          MINE
-        </button>
-        <button className={allTab ? 'active' : ''} onClick={() => send('LOAD_TAB_ALL')}>
-          ALL
-        </button>
+      <div className="header">
+        <div>
+          <button className={waitingTab ? 'active' : ''} onClick={() => send('LOAD_TAB_WAITING')}>
+            WAITING
+          </button>
+          <button className={mineTab ? 'active' : ''} onClick={() => send('LOAD_TAB_MINE')}>
+            MINE
+          </button>
+          <button className={allTab ? 'active' : ''} onClick={() => send('LOAD_TAB_ALL')}>
+            ALL
+          </button>
+        </div>
+        <Link url="/addTicket">Add ticket</Link>
       </div>
       {render(current, send)}
       <style jsx>{`
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        button {
+          padding: 0.5rem;
+          background-color: white;
+          border-radius: 5px 5px 0 0;
+        }
         .active {
-          background-color: red;
+          font-weight: bold;
+          color: white;
+          background-color: ${colors.SKY_DARK};
         }
       `}</style>
     </React.Fragment>
@@ -224,7 +240,6 @@ function TicketsView({ Tickets }) {
 export default function Index({ Tickets, user }) {
   return (
     <Layout>
-      <Title type="primary">My Tickets</Title>
       <TicketsView Tickets={Tickets} user={user} />
     </Layout>
   );

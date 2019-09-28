@@ -1,44 +1,44 @@
 export default function createUsers(drivers) {
   const dbUsers = drivers.db('users');
-  const users = drivers.createListener([], 'createAdmin');
 
+  const names = {};
   return {
     getFullname(id) {
-      return id;
+      return names[id] || id;
+    },
+    prefetchNames() {
+      return dbUsers
+        .getAll()
+        .then(a => a || [])
+        .then(list => {
+          list.forEach(u => {
+            names[u.id] = u.firstname + ' ' + u.lastname;
+          });
+        });
     },
     fetch() {
-      return dbUsers.getAll().then(a => {
-        users.replace(a || []);
-        return a || [];
-      });
-    },
-    getObservable() {
-      return users;
+      return dbUsers.getAll().then(a => a || []);
     },
     get(id) {
       return dbUsers.get(id);
     },
     enable(user) {
-      return dbUsers
-        .update({
-          ...user,
-          isActive: true,
-          _history: (user._history || []).concat([
-            { update: 'isActive', with: true, was: user.isActive, on: new Date().toISOString() },
-          ]),
-        })
-        .then(a => users.replace(a));
+      return dbUsers.update({
+        ...user,
+        isActive: true,
+        _history: (user._history || []).concat([
+          { update: 'isActive', with: true, was: user.isActive, on: new Date().toISOString() },
+        ]),
+      });
     },
     disable(user) {
-      return dbUsers
-        .update({
-          ...user,
-          isActive: false,
-          _history: (user._history || []).concat([
-            { update: 'isActive', with: false, was: user.isActive, on: new Date().toISOString() },
-          ]),
-        })
-        .then(a => users.replace(a));
+      return dbUsers.update({
+        ...user,
+        isActive: false,
+        _history: (user._history || []).concat([
+          { update: 'isActive', with: false, was: user.isActive, on: new Date().toISOString() },
+        ]),
+      });
     },
     groupByStatus: data =>
       data.reduce(

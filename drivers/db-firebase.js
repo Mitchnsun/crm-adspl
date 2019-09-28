@@ -81,18 +81,15 @@ export default function createDb() {
           .ref(`${path}/${data.id}`)
           .set(data)
           .then(() => {
-            return db
-              .ref(`${path}`)
-              .once('value')
-              .then(snap => snap.val())
-              .then(r => {
-                if (r) {
-                  return Object.keys(r)
-                    .map(k => r[k])
-                    .filter(d => !d._archived);
-                }
-                return [];
-              });
+            return data;
+          });
+      },
+      updatePath(subpath, value) {
+        return db
+          .ref(`${path}/${subpath}`)
+          .set(value)
+          .then(() => {
+            return value;
           });
       },
     };
