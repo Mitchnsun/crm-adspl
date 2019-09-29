@@ -2,9 +2,6 @@ require('dotenv').config();
 
 const express = require('express');
 const next = require('next');
-const { parse } = require('url');
-
-const adspl = require('./api/adspl-firebase');
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -14,15 +11,6 @@ app
   .prepare()
   .then(() => {
     const server = express();
-
-    server.get('/_api/adspl/:id', (req, res) => {
-      const { id } = req.params;
-      console.log("/_api/adspl/:id'", id);
-      adspl
-        .get(id)
-        .then(result => res.json(result))
-        .catch(err => res.status(500).send(err.message));
-    });
 
     server.get('*', (req, res) => {
       return handle(req, res);
