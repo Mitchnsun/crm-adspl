@@ -43,9 +43,19 @@ export default function createSession(drivers) {
     listen: (cb, currentRoute) => {
       return drivers.auth.listen(async userAuth => {
         if (userAuth) {
+          console.log('userAuth', userAuth);
           const user = await dbUsers.get(userAuth.uid);
+          if (!user || !user.isActive) {
+            if (isConnected) {
+              drivers.router.onDisconnect();
+            }
+            isConnected = false;
+            state.user = null;
+            cb(state);
+            return;
+          }
           isConnected = true;
-          state.user = createUser(drivers)(user);
+          state.user = createUser(drivers)(user, userAuth);
           if (state.user.isAdmin()) {
             state.user = createAdmin(drivers)(state.user);
           }

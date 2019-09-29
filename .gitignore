@@ -4,3 +4,7 @@ node_modules
 .idea
 coverage
 .env
+credentials-adspl.json
+credentials-crm.json
+.env-now
+env-config.json

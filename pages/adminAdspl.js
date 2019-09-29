@@ -62,6 +62,7 @@ const machine = Machine({
 
 export default function adminAdspl({ Adspl }) {
   const user = useContext(UserContext);
+  console.log('user', user);
   const [current, send] = useMachine(machine, {
     services: {
       fetchData: (context, event) => Adspl.getDetails(event.id, user),
@@ -70,6 +71,7 @@ export default function adminAdspl({ Adspl }) {
       searchValid: (context, event) => Adspl.validateId(event.id),
     },
   });
+  console.log('current.context', current.context);
 
   const idRef = useRef(null);
   return (
@@ -97,7 +99,8 @@ export default function adminAdspl({ Adspl }) {
         searching: () => <p>loading...</p>,
         success: () => {
           idRef.current.value = '';
-          return <AdsplOverview data={current.context.data} />;
+          if (current.context.data) return <AdsplOverview data={current.context.data} />;
+          return 'No data';
         },
         failure: () => <p>{current.context.error}</p>,
       })}
