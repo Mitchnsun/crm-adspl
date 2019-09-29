@@ -30,20 +30,23 @@ export default function createSession(drivers) {
       }
       const { firstname, lastname, email, password } = params;
       return drivers.auth.createAccount({ email, password }).then(id => {
-        return dbUsers.add({
+        const data = {
           firstname,
           lastname,
           email,
           isActive: false,
           id,
           role: 'agent',
+        };
+        return fetch(process.env.CRM_API_URL + '/createAccount', {
+          method: 'post',
+          body: JSON.stringify(data),
         });
       });
     },
     listen: (cb, currentRoute) => {
       return drivers.auth.listen(async userAuth => {
         if (userAuth) {
-          console.log('userAuth', userAuth);
           const user = await dbUsers.get(userAuth.uid);
           if (!user || !user.isActive) {
             if (isConnected) {

@@ -98,6 +98,34 @@ app.get('/ping', (req, res) => {
   res.send(`pong`);
 });
 
+app.post('/createAccount', async (req, res, next) => {
+  const { firstname, lastname, email, isActive, id, role } = JSON.parse(req.body);
+
+  const user = await crm
+    .database()
+    .ref('users/' + id)
+    .once('value')
+    .then(snap => snap.val());
+
+  if (user) {
+    res.status(400).send('User allready exist!');
+    return;
+  }
+  await crm
+    .database()
+    .ref('users/' + id)
+    .set({
+      firstname,
+      lastname,
+      email,
+      isActive,
+      id,
+      role,
+    });
+
+  res.status(204).send('');
+});
+
 app.get('/adspl/:id', validateFirebaseIdToken, checkUser(['admin', 'agent']), async (req, res) => {
   const data = await adspl.getById(req.params.id);
   res.json(data);
