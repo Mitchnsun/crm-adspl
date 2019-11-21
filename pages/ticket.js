@@ -9,6 +9,7 @@ import UserContext from '../utils/UserContext';
 import { assign, Machine } from 'xstate';
 import { useMachine } from '@xstate/react';
 import colors from '../styles/colors';
+import { EmailBlock } from '../components/widgets/EmailBlock';
 
 const machine = Machine(
   {
@@ -256,7 +257,9 @@ const TitleBlock = ({ title, onChange }) => {
   }
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-      <Title type="primary">{title || 'Title'}</Title>
+      <Title type="primary" trunc>
+        {title || 'Title'}
+      </Title>
       <div>
         <button onClick={() => send('EDIT')}>Edit</button>
       </div>
@@ -372,9 +375,12 @@ const Ticket = props => {
   }, [ticketId]);
 
   const ticket = current.context.ticket;
-  if (!ticket) return null;
-
-  const { author, status, title, followers, description, comments = [] } = ticket;
+  if (!ticket) {
+    console.error('No ticket!', ticketId);
+    return null;
+  }
+  console.log('ticket', ticket);
+  const { author, status, title, followers, description, comments = [], emailId } = ticket;
 
   const commentRef = createRef();
   return (
@@ -409,8 +415,10 @@ const Ticket = props => {
           </p>
         </div>
       </div>
-
-      <DescriptionBlock description={description} onChange={value => send({ type: 'UPDATE_DESCRIPTION', value })} />
+      {description && (
+        <DescriptionBlock description={description} onChange={value => send({ type: 'UPDATE_DESCRIPTION', value })} />
+      )}
+      {emailId && <EmailBlock emailId={emailId} />}
 
       <h2>Suivi</h2>
       {comments.map(comment => (

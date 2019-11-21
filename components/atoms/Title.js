@@ -6,12 +6,21 @@ const TYPES = {
   subtitle: 'h4',
 };
 
-export default function Title({ type, children }) {
+export default function Title({ type, children, trunc }) {
   const Comp = TYPES[type] || TYPES.secondary;
   return (
     <React.Fragment>
       <Comp>{children}</Comp>
       <style jsx>{`
+        ${trunc
+          ? `
+        h2, h3, h4 {
+          overflow: auto;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+        `
+          : ''}
         h2 {
           margin-top: 0;
           margin-bottom: 1em;

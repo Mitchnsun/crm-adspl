@@ -2,15 +2,17 @@ import Link from '../atoms/Link';
 import StatusChip from '../atoms/StatusChip';
 import colors from '../../styles/colors';
 
+function mapGmail(text) {
+  return text;
+}
+
 const TicketLink = ({ ticket }) => (
   <tr>
     <td style={{ textAlign: 'left' }}>
       <StatusChip status={ticket.status} />
     </td>
     <td>
-      <Link url={`/ticket?id=${ticket.id}`}>
-        {ticket.title} ({ticket.id}) ({ticket.createAt})
-      </Link>
+      <Link url={`/ticket?id=${ticket.id}`}>{ticket.author !== 'GMAIL' ? ticket.title : mapGmail(ticket.title)}</Link>
     </td>
     <td>{ticket.author}</td>
     <style jsx>{`

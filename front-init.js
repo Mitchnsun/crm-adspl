@@ -11,6 +11,7 @@ import createTickets from './domains/Tickets';
 import createAdspl from './domains/Adspl';
 import createUsers from './domains/Users';
 import createCounters from './domains/Counters';
+import createEmails from './domains/Emails';
 
 // createDbMocked();
 
@@ -29,5 +30,6 @@ export default function init() {
     Tickets: createTickets(drivers, createCounters(drivers)),
     Users: createUsers(drivers),
     Adspl: createAdspl(drivers),
+    Emails: createEmails(drivers),
   };
 }

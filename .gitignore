@@ -6,5 +6,6 @@ coverage
 .env
 credentials-adspl.json
 credentials-crm.json
+credentials-gmail.json
 .env-now
 env-config.json

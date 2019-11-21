@@ -131,6 +131,12 @@ app.get('/adspl/:id', validateFirebaseIdToken, checkUser(['admin', 'agent']), as
   res.json(data);
 });
 
+const gmailApi = require('./gmail')();
+app.get('/email/:id', validateFirebaseIdToken, checkUser(['admin', 'agent']), async (req, res) => {
+  const data = await gmailApi.getById(req.params.id);
+  res.json(data);
+});
+
 // This HTTPS endpoint can only be accessed by your Firebase Users.
 // Requests need to be authorized by providing an `Authorization` HTTP header
 // with value `Bearer <Firebase ID Token>`.
