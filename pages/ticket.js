@@ -10,6 +10,7 @@ import { assign, Machine } from 'xstate';
 import { useMachine } from '@xstate/react';
 import colors from '../styles/colors';
 import { EmailBlock } from '../components/widgets/EmailBlock';
+import DomainsContext from '../utils/DomainsContext';
 
 const machine = Machine(
   {
@@ -345,7 +346,8 @@ const CommentBlock = ({ comment, onChange, getUserName }) => {
 };
 
 const Ticket = props => {
-  const { ticketId, Tickets, Users } = props;
+  const { Tickets, Users } = useContext(DomainsContext);
+  const { ticketId } = props;
   const user = useContext(UserContext);
   const [current, send] = useMachine(machine, {
     services: {

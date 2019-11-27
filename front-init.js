@@ -6,14 +6,11 @@ import createListener from './drivers/listeners-test';
 import createAdsplDriver from './drivers/adspl-firebase';
 
 import createSession from './domains/Session';
-import createDbMocked from './drivers/db-mocked';
 import createTickets from './domains/Tickets';
 import createAdspl from './domains/Adspl';
 import createUsers from './domains/Users';
 import createCounters from './domains/Counters';
 import createEmails from './domains/Emails';
-
-// createDbMocked();
 
 export default function init() {
   const drivers = {
@@ -26,7 +23,7 @@ export default function init() {
   };
 
   return {
-    session: createSession(drivers),
+    Session: createSession(drivers),
     Tickets: createTickets(drivers, createCounters(drivers)),
     Users: createUsers(drivers),
     Adspl: createAdspl(drivers),

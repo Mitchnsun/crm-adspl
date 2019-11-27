@@ -3,7 +3,7 @@ const fs = require('fs');
 const readline = require('readline');
 
 // If modifying these scopes, delete token.json.
-const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
+const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.send'];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
@@ -83,6 +83,16 @@ module.exports = function() {
           userId: 'me',
           id,
           format: 'full',
+        }),
+      );
+    },
+    sendMessage({ message, to }) {
+      return getGmail().then(gmail =>
+        gmail.users.messages.send({
+          userId: to,
+          resource: {
+            raw: Buffer.from(unescape(encodeURIComponent(message))).toString('base64'),
+          },
         }),
       );
     },

@@ -4,8 +4,10 @@ import Router from 'next/router';
 import Layout from '../components/organismes/Layout';
 import Link from '../components/atoms/Link';
 import UserContext from '../utils/UserContext';
+import DomainsContext from '../utils/DomainsContext';
 
-export default function AddTicket({ Tickets }) {
+export default function AddTicket() {
+  const { Tickets } = useContext(DomainsContext);
   const titleRef = createRef();
   const descRef = createRef();
   const user = useContext(UserContext);

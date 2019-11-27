@@ -7,6 +7,7 @@ import TableTickets from '../components/molecules/TableTickets';
 import { useMachine } from '@xstate/react';
 import UserContext from '../utils/UserContext';
 import colors from '../styles/colors';
+import DomainsContext from '../utils/DomainsContext';
 
 const machine = Machine({
   id: 'tickets',
@@ -173,7 +174,8 @@ const render = (current, send) => {
   }
 };
 
-function TicketsView({ Tickets }) {
+function TicketsView() {
+  const { Tickets } = useContext(DomainsContext);
   const user = useContext(UserContext);
   const [current, send] = useMachine(machine, {
     services: {
@@ -237,10 +239,10 @@ function TicketsView({ Tickets }) {
   );
 }
 
-export default function Index({ Tickets, user }) {
+export default function Index() {
   return (
     <Layout>
-      <TicketsView Tickets={Tickets} user={user} />
+      <TicketsView />
     </Layout>
   );
 }

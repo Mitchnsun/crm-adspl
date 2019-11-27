@@ -3,6 +3,7 @@ import Layout from '../components/organismes/Layout';
 import UserContext from '../utils/UserContext';
 import { assign, Machine } from 'xstate';
 import { useMachine } from '@xstate/react';
+import DomainsContext from '../utils/DomainsContext';
 
 const machine = Machine({
   id: 'users',
@@ -88,7 +89,8 @@ const machine = Machine({
   },
 });
 
-function UsersView({ Users }) {
+function UsersView() {
+  const { Users } = useContext(DomainsContext);
   const currentUser = useContext(UserContext);
 
   if (!currentUser || !currentUser.isAdmin()) return null;

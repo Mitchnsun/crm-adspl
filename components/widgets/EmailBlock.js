@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, createRef } from 'react';
 import { assign, Machine } from 'xstate';
 import { useMachine } from '@xstate/react';
 import UserContext from '../../utils/UserContext';
@@ -38,24 +38,43 @@ const machine = Machine({
       },
     },
     success: {
-      final: true,
+      on: {
+        SEND_EMAIL: 'sendingEmail',
+      },
     },
     failure: {
       on: {
         RETRY: 'loading',
       },
     },
+    sendingEmail: {
+      invoke: {
+        src: 'sendEmail',
+        onDone: {
+          target: 'success',
+        },
+        onError: {
+          target: 'failure',
+          actions: assign({
+            error: (_, event) => event.data,
+          }),
+        },
+      },
+    },
   },
 });
 
-const Answer = () => {
+const Answer = ({ answer }) => {
+  const ref = createRef();
   return (
     <div>
-      <textarea row={4} style={{ width: '100%' }}></textarea>
-      <button>Répondre</button>
+      <textarea row={4} style={{ width: '100%' }} ref={ref}></textarea>
+      <button onClick={() => answer(ref.current.value)}>Répondre</button>
     </div>
   );
 };
+
+const extractEmail = text => (/<(.*)>/.test(text) ? /<(.*)>/.exec(text)[1] : text);
 
 export function EmailBlock({ emailId }) {
   const user = useContext(UserContext);
@@ -66,6 +85,7 @@ export function EmailBlock({ emailId }) {
   const [current, send] = useMachine(machine, {
     services: {
       fetchEmail: () => domains.Emails.getById(emailId, user),
+      sendEmail: (_, { message, to }) => domains.Emails.sendEmail({ message, to }, user),
     },
   });
 
@@ -96,7 +116,17 @@ export function EmailBlock({ emailId }) {
             }}
           />
           <br />
-          <Answer />
+          <Answer
+            answer={message => {
+              const sender = current.context.email.data.payload.headers.find(h => h.name.toLowerCase() === 'from')
+                .value;
+              send({
+                type: 'SEND_EMAIL',
+                message,
+                to: extractEmail(sender),
+              });
+            }}
+          />
         </div>
       );
     } catch (e) {

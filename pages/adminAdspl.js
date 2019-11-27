@@ -7,6 +7,7 @@ import { AdsplOverview } from '../components/organismes/AdsplOverview';
 import UserContext from '../utils/UserContext';
 import { render } from '../utils/render-machine';
 import colors from '../styles/colors';
+import DomainsContext from '../utils/DomainsContext';
 
 const machine = Machine({
   id: 'fetch',
@@ -60,7 +61,8 @@ const machine = Machine({
   },
 });
 
-export default function adminAdspl({ Adspl }) {
+export default function adminAdspl() {
+  const { Adspl } = useContext(DomainsContext);
   const user = useContext(UserContext);
   console.log('user', user);
   const [current, send] = useMachine(machine, {
