@@ -206,16 +206,16 @@ function TicketsView() {
       <div className="header">
         <div>
           <button className={waitingTab ? 'active' : ''} onClick={() => send('LOAD_TAB_WAITING')}>
-            WAITING
+            En attente
           </button>
           <button className={mineTab ? 'active' : ''} onClick={() => send('LOAD_TAB_MINE')}>
-            MINE
+            Mes tickets
           </button>
           <button className={allTab ? 'active' : ''} onClick={() => send('LOAD_TAB_ALL')}>
-            ALL
+            Tous les tickets
           </button>
         </div>
-        <Link url="/addTicket">Add ticket</Link>
+        <Link url="/addTicket">Ajouter un ticket</Link>
       </div>
       {render(current, send)}
       <style jsx>{`

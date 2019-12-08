@@ -262,7 +262,7 @@ const TitleBlock = ({ title, onChange }) => {
         {title || 'Title'}
       </Title>
       <div>
-        <button onClick={() => send('EDIT')}>Edit</button>
+        <button onClick={() => send('EDIT')}>Modifier</button>
       </div>
     </div>
   );
@@ -294,7 +294,7 @@ const DescriptionBlock = ({ description, onChange }) => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2>Description</h2>
         <div>
-          <button onClick={() => send('EDIT')}>Edit</button>
+          <button onClick={() => send('EDIT')}>Modifier</button>
         </div>
       </div>
       <Markdown text={description} />
@@ -333,7 +333,7 @@ const CommentBlock = ({ comment, onChange, getUserName }) => {
             <button onClick={() => send('CANCEL')}>Annuler</button>
           </div>
         ) : (
-          <button onClick={() => send('EDIT')}>Edit</button>
+          <button onClick={() => send('EDIT')}>Modifier</button>
         )}
       </div>
       {current.value === 'editing' ? (

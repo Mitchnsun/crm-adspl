@@ -33,7 +33,7 @@ export default function AddTicket() {
             });
           }}
         >
-          Add
+          Ajouter
         </button>
       </div>
     </Layout>
