@@ -5,7 +5,7 @@ import SessionContext from '../utils/SessionContext';
 import DomainsContext from '../utils/DomainsContext';
 import { Authentication } from '../components/organismes/Authentication';
 import colors from '../styles/colors';
-const { Session, Tickets, Users, Adspl, Emails } = init();
+const { Session, Tickets, Users, Adspl, Emails, Activities } = init();
 
 class MyApp extends App {
   constructor() {
@@ -34,7 +34,7 @@ class MyApp extends App {
     const { Component, pageProps } = this.props;
     return (
       <SessionContext.Provider value={Session}>
-        <DomainsContext.Provider value={{ Adspl, Tickets, Users, Emails }}>
+        <DomainsContext.Provider value={{ Adspl, Tickets, Users, Emails, Activities }}>
           <Authentication currentRoute={this.props.router.route}>
             <Component {...pageProps} {...this.state} />
           </Authentication>

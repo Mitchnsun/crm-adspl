@@ -1,9 +1,151 @@
-import { useState } from 'react';
+import { useState, createRef, useContext } from 'react';
 import { get } from 'lodash';
 import moment from 'moment';
 import colors from '../../styles/colors';
+import UserContext from '../../utils/UserContext';
+import DomainsContext from '../../utils/DomainsContext';
 
-function Line({ item, date, name, renderSummary = () => null, renderDetails = () => null }) {
+function AdspInfos({ infos, onSubmit }) {
+  const [isEditing, setIsEditing] = useState(false);
+
+  const refs = {
+    name: createRef(),
+    email: createRef(),
+    address: {
+      name: createRef(),
+      street: createRef(),
+      cedex: createRef(),
+      zipcode: createRef(),
+      city: createRef(),
+      country: createRef(),
+    },
+  };
+
+  return (
+    <div>
+      <div>
+        {isEditing ? (
+          <div>
+            <button onClick={() => setIsEditing(false)}>Retour</button>
+            <button
+              onClick={() => {
+                const datas = {
+                  name: refs.name.current.value,
+                  email: refs.email.current.value,
+                  address: {
+                    name: refs.address.name.current.value,
+                    street: refs.address.street.current.value,
+                    cedex: refs.address.cedex.current.value,
+                    zipcode: refs.address.zipcode.current.value,
+                    city: refs.address.city.current.value,
+                    country: refs.address.country.current.value,
+                  },
+                };
+                setIsEditing(false);
+                onSubmit(datas);
+              }}
+            >
+              Enregistrer
+            </button>
+          </div>
+        ) : (
+          <button onClick={() => setIsEditing(true)}>Modifier</button>
+        )}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+        <div style={{ flex: 1, padding: '5px' }}>
+          <table>
+            <tbody>
+              <tr>
+                <td>Nom</td>
+                <td>
+                  <input ref={refs.name} type="text" defaultValue={infos.name} disabled={!isEditing} />
+                </td>
+              </tr>
+              <tr>
+                <td>Email</td>
+                <td>
+                  <input ref={refs.email} type="text" defaultValue={infos.email} disabled={!isEditing} />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style={{ flex: 1, padding: '5px' }}>
+          <table>
+            <tbody>
+              <tr>
+                <td>Nom</td>
+                <td>
+                  <input ref={refs.address.name} type="text" defaultValue={infos.address.name} disabled={!isEditing} />
+                </td>
+              </tr>
+              <tr>
+                <td>Rue</td>
+                <td>
+                  <input
+                    ref={refs.address.street}
+                    type="text"
+                    defaultValue={infos.address.street}
+                    disabled={!isEditing}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>Cedex</td>
+                <td>
+                  <input
+                    ref={refs.address.cedex}
+                    type="text"
+                    defaultValue={infos.address.cedex}
+                    disabled={!isEditing}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>Code postal</td>
+                <td>
+                  <input
+                    ref={refs.address.zipcode}
+                    type="text"
+                    defaultValue={infos.address.zipcode}
+                    disabled={!isEditing}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>Ville</td>
+                <td>
+                  <input ref={refs.address.city} type="text" defaultValue={infos.address.city} disabled={!isEditing} />
+                </td>
+              </tr>
+              <tr>
+                <td>Pays</td>
+                <td>
+                  <input
+                    ref={refs.address.country}
+                    type="text"
+                    defaultValue={infos.address.country}
+                    disabled={!isEditing}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <style jsx>{`
+        table {
+          width: 100%;
+        }
+        input {
+          width: 100%;
+        }
+      `}</style>
+    </div>
+  );
+}
+function Line({ item, date, name, renderSummary = () => null, renderDetails }) {
   const [openDetails, setOpenDetails] = useState(false);
   const [openRaw, setOpenRaw] = useState(false);
   return (
@@ -26,13 +168,26 @@ function Line({ item, date, name, renderSummary = () => null, renderDetails = ()
         <div style={{ marginRight: '1rem', fontWeight: 'bold', color: colors.SKY_DARK }}>{name}</div>
         <div style={{ flex: 1, marginRight: '1rem' }}>{renderSummary()}</div>
         <div>
-          <button className={openDetails ? 'open' : ''} onClick={() => setOpenDetails(!openDetails)}>
-            Détails
-          </button>
+          {item.generate && <span className="generated">Généré</span>}
+          {renderDetails && (
+            <button className={openDetails ? 'open' : ''} onClick={() => setOpenDetails(!openDetails)}>
+              Détails
+            </button>
+          )}
+
           <button className={openRaw ? 'open' : ''} onClick={() => setOpenRaw(!openRaw)}>
             JSON
           </button>
           <style jsx>{`
+            .generated {
+                border: 1px solid ${colors.SKY_DARK};
+                background-color: ${colors.SKY_DARK};
+                color: white;
+                border-radius: 5px;
+                cursor: pointer;
+                margin-right 5px;
+                padding: 0 5px;
+            }
             button {
               border: 1px solid ${colors.SKY_DARK};
               border-radius: 5px;
@@ -69,26 +224,29 @@ function toJSX(item) {
   if (!item) return null;
   switch (item.task) {
     case 'init': {
-      return (
-        <Line
-          item={item}
-          date={item.date}
-          name={'Création'}
-          renderSummary={() => <p />}
-          renderDetails={() => (
-            <table>
-              <tbody>
-                {Object.keys(item.input.insee).map(key => (
-                  <tr>
-                    <td>{key}</td>
-                    <td>{item.input.insee[key]}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        />
-      );
+      if (item._version === 0) {
+        return (
+          <Line
+            item={item}
+            date={item.date}
+            name="Ajout de l'entreprise"
+            renderSummary={() => <p />}
+            renderDetails={() => (
+              <table>
+                <tbody>
+                  {Object.keys(item.input.insee).map(key => (
+                    <tr>
+                      <td>{key}</td>
+                      <td>{item.input.insee[key]}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          />
+        );
+      }
+      return <Line item={item} date={item.date} name="Ajout de l'entreprise" renderSummary={() => <p />} />;
     }
     case 'registration': {
       const {
@@ -184,7 +342,7 @@ function toJSX(item) {
               date={date}
               name={`Paiment pour la cotisation ${cotisation}`}
               renderSummary={() => <div>SEPA [Initialisation du mandat de paiement]</div>}
-              renderDetails={() => (error ? 'Error' : <div></div>)}
+              renderDetails={error ? () => 'Error' : undefined}
             />
           );
         }
@@ -195,7 +353,7 @@ function toJSX(item) {
               date={date}
               name={`Paiment pour la cotisation ${cotisation}`}
               renderSummary={() => <div>SEPA [Mandat de paiement crée]</div>}
-              renderDetails={() => (error ? 'Error' : <div></div>)}
+              renderDetails={error ? () => 'Error' : undefined}
             />
           );
         }
@@ -251,11 +409,16 @@ function toJSX(item) {
       );
     }
     default:
+      if (item.date && item.task) {
+        return <Line item={item} date={item.date} name={item.task} />;
+      }
       return <div>{JSON.stringify(item)}</div>;
   }
 }
 
 export function AdsplOverview({ data }) {
+  const user = useContext(UserContext);
+  const { Adspl } = useContext(DomainsContext);
   return (
     <div>
       <div className="container">
@@ -264,12 +427,13 @@ export function AdsplOverview({ data }) {
           <div style={{ display: 'flex' }}>
             <div style={{ flex: 1 }}>
               {data.insee.NOMEN_LONG}
-              <div>Siret: {data.insee.SIRET || 'Non renseigné'}</div>
-              <div>Siren: {data.insee.SIREN}</div>
+              <div>Siret: {data.siret || 'Non renseigné'}</div>
+              <div>Siren: {data.siren}</div>
               <div>Email: {data.email || 'Non renseigné'} </div>
             </div>
             <div style={{ flex: 1 }}>
               <div>Cotisations:</div>
+              {Object.keys(data.cotisations).length === 0 && 'Pas de cotisations'}
               {Object.keys(data.cotisations).map(cotisation => {
                 return (
                   <div key={cotisation} className={'cotisation-line'}>
@@ -283,9 +447,15 @@ export function AdsplOverview({ data }) {
             </div>
           </div>
         </div>
+        {data.infos && (
+          <div className="infos">
+            <h2>Informations</h2>
+            <AdspInfos infos={data.infos} onSubmit={infos => Adspl.updateInfos(data.siret, infos, user)} />
+          </div>
+        )}
         <div className="history">
           <h2>Historique</h2>
-          <div>{data.history.map(toJSX)}</div>
+          <div>{data._history.map(toJSX)}</div>
         </div>
       </div>
       <style jsx>{`

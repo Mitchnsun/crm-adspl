@@ -6,5 +6,8 @@ export default function createAdspl(drivers) {
     validateId(siren) {
       return (siren && siren.length > 0) || false;
     },
+    updateInfos(id, datas, user) {
+      return drivers.adspl.updateInfos(id, datas, user);
+    },
   };
 }

@@ -13,11 +13,11 @@ const Header = () => {
         <Link href="/">
           <a>Tickets</a>
         </Link>
-        <Link href="/adminAdspl">
+        <Link href="/adspl">
           <a>ADSPL</a>
         </Link>
         {user && user.isAdmin() && (
-          <Link href="/admin">
+          <Link href="/users">
             <a>Users</a>
           </Link>
         )}

@@ -22,21 +22,22 @@ export default function createUsers(drivers) {
     get(id) {
       return dbUsers.get(id);
     },
-    enable(user) {
+    updateGroups(groups, user) {},
+    enable(user, agent) {
       return dbUsers.update({
         ...user,
         isActive: true,
         _history: (user._history || []).concat([
-          { update: 'isActive', with: true, was: user.isActive, on: new Date().toISOString() },
+          { update: 'isActive', with: true, was: user.isActive, on: new Date().toISOString(), by: agent.id },
         ]),
       });
     },
-    disable(user) {
+    disable(user, agent) {
       return dbUsers.update({
         ...user,
         isActive: false,
         _history: (user._history || []).concat([
-          { update: 'isActive', with: false, was: user.isActive, on: new Date().toISOString() },
+          { update: 'isActive', with: false, was: user.isActive, on: new Date().toISOString(), by: agent.id },
         ]),
       });
     },

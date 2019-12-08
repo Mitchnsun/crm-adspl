@@ -20,10 +20,17 @@ function reducer(state, h) {
 
   switch (h.task) {
     case 'init':
-      newState.insee = h.input.insee;
-      newState.siren = h.input.insee.SIREN;
-      newState.siret = h.input.insee.SIRET;
-      newState.name = h.input.insee.NOMEN_LONG;
+      if (h._version === 0) {
+        newState.insee = h.input.insee;
+        newState.siren = h.input.insee.SIREN;
+        newState.siret = h.input.insee.SIRET;
+        newState.name = h.input.insee.NOMEN_LONG;
+      } else if (h._version === 1) {
+        newState.insee = h.input.insee;
+        newState.siren = h.input.insee.siren;
+        newState.siret = h.input.insee.siret;
+        newState.name = '';
+      }
       break;
     case 'registration': {
       if (!newState.cotisations[h.input.cotisation]) {
@@ -163,28 +170,37 @@ function reducer(state, h) {
   return newState;
 }
 
-function createHistory(raw) {
+function createHistoryFromCotisation(raw) {
   const history = [];
-
-  history.push({ task: 'init', input: { insee: get(raw, 'details', {}) }, date: get(raw, 'creationDate') });
-
+  if (!raw.cotisations) return history;
   Object.keys(raw.cotisations).forEach(c => {
     const cotisation = raw.cotisations[c];
     history.push({
       task: 'registration',
       input: { ...get(cotisation, 'REGISTRATION', {}), cotisation: c },
       date: get(cotisation, 'REGISTRATION', {}).date,
+      generate: true,
     });
     const creditCard = get(cotisation, 'PAYMENT.CREDIT_CARD');
     if (creditCard) {
       const init = get(creditCard, 'INIT');
       if (init) {
-        history.push({ task: 'payment-credit-card', input: { type: 'init', ...init, cotisation: c }, date: init.date });
+        history.push({
+          task: 'payment-credit-card',
+          input: { type: 'init', ...init, cotisation: c },
+          date: init.date,
+          generate: true,
+        });
       }
 
       const end = get(creditCard, 'END');
       if (end) {
-        history.push({ task: 'payment-credit-card', input: { type: 'end', ...end, cotisation: c }, date: end.date });
+        history.push({
+          task: 'payment-credit-card',
+          input: { type: 'end', ...end, cotisation: c },
+          date: end.date,
+          generate: true,
+        });
       }
 
       const last = get(creditCard, 'LAST');
@@ -201,13 +217,14 @@ function createHistory(raw) {
             task: 'payment-credit-card',
             input: { type: 'notify', ...notification, cotisation: c },
             date: notification.date,
+            generate: true,
           });
         });
       }
     }
     const check = get(cotisation, 'PAYMENT.CHECK');
     if (check) {
-      history.push({ task: 'payment-check', input: { ...check, cotisation: c }, date: check.date });
+      history.push({ task: 'payment-check', input: { ...check, cotisation: c }, date: check.date, generate: true });
     }
 
     const sepa = get(cotisation, 'PAYMENT.SEPA');
@@ -219,26 +236,67 @@ function createHistory(raw) {
           get(event, 'response.payments.created_at') ||
           get(event, 'response.event.created_at') ||
           new Date(getFromFirebaseID(e)).toISOString();
-        history.push({ task: 'payment-sepa', date, input: { ...event, cotisation: c } });
+        history.push({ task: 'payment-sepa', date, input: { ...event, cotisation: c }, generate: true });
       });
     }
   });
-  return sortBy(history, o => o.date);
+  return history;
 }
 
+function createHistoryFromSiren(raw) {
+  const history = [];
+
+  history.push({
+    task: 'init',
+    input: { insee: get(raw, 'details', {}) },
+    date: get(raw, 'creationDate'),
+    _version: 0,
+    generate: true,
+  });
+
+  history.push(...createHistoryFromCotisation(raw));
+  return sortBy(history, o => o.date);
+}
+function createHistoryFromSiret(raw) {
+  const history = raw._history ? Object.values(raw._history) : [];
+
+  history.push({
+    task: 'init',
+    input: { insee: get(raw, 'insee', {}) },
+    date: get(raw, 'creationDate'),
+    _version: 1,
+    generate: true,
+  });
+
+  history.push(...createHistoryFromCotisation(raw));
+  return sortBy(history, o => o.date);
+}
 function createStateFromHistory(history) {
   return history.reduce(reducer, {});
 }
 
+// 824569263
 function mapSiren(raw) {
   if (!raw) return null;
-  const history = createHistory(raw);
+  const history = createHistoryFromSiren(raw);
   return {
     ...createStateFromHistory(history),
-    history,
+    _history: history,
+  };
+}
+
+// 82788226700020
+function mapSiret(raw) {
+  if (!raw) return null;
+  const history = createHistoryFromSiret(raw);
+  return {
+    ...createStateFromHistory(history),
+    infos: raw.infos,
+    _history: history,
   };
 }
 
 module.exports = {
   mapSiren,
+  mapSiret,
 };

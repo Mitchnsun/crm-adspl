@@ -11,6 +11,7 @@ import createAdspl from './domains/Adspl';
 import createUsers from './domains/Users';
 import createCounters from './domains/Counters';
 import createEmails from './domains/Emails';
+import createActivities from './domains/Activities';
 
 export default function init() {
   const drivers = {
@@ -28,5 +29,6 @@ export default function init() {
     Users: createUsers(drivers),
     Adspl: createAdspl(drivers),
     Emails: createEmails(drivers),
+    Activities: createActivities(drivers),
   };
 }

@@ -131,6 +131,21 @@ app.get('/adspl/:id', validateFirebaseIdToken, checkUser(['admin', 'agent']), as
   res.json(data);
 });
 
+app.post('/adspl/infos/:id', validateFirebaseIdToken, checkUser(['admin', 'agent']), async (req, res) => {
+  try {
+    await adspl.updateInfos(req.params.id, JSON.parse(req.body), req.user.uid);
+    res.json({
+      ok: true,
+    });
+  } catch (e) {
+    console.error(e);
+    res.json({
+      ok: false,
+      err: e,
+    });
+  }
+});
+
 const gmailApi = require('./gmail')();
 app.get('/email/:id', validateFirebaseIdToken, checkUser(['admin', 'agent']), async (req, res) => {
   const data = await gmailApi.getById(req.params.id);

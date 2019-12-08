@@ -61,10 +61,9 @@ const machine = Machine({
   },
 });
 
-export default function adminAdspl() {
+export default function adspl() {
   const { Adspl } = useContext(DomainsContext);
   const user = useContext(UserContext);
-  console.log('user', user);
   const [current, send] = useMachine(machine, {
     services: {
       fetchData: (context, event) => Adspl.getDetails(event.id, user),
@@ -73,8 +72,6 @@ export default function adminAdspl() {
       searchValid: (context, event) => Adspl.validateId(event.id),
     },
   });
-  console.log('current.context', current.context);
-
   const idRef = useRef(null);
   return (
     <Layout>

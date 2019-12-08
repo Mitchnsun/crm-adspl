@@ -1,5 +1,7 @@
-const { adspl } = require('./connections');
-const { mapSiren } = require('./adspl-siren.util');
+const moment = require('moment');
+const { merge } = require('lodash');
+const { adspl, crm } = require('./connections');
+const { mapSiren, mapSiret } = require('./adspl-siren.util');
 
 function getSirenDetails(siren) {
   return adspl
@@ -15,7 +17,8 @@ function getSiretDetails(siret) {
     .database()
     .ref('/ids/' + siret)
     .once('value')
-    .then(snap => snap.val());
+    .then(snap => snap.val())
+    .then(mapSiret);
 }
 
 function getById(id) {
@@ -24,6 +27,46 @@ function getById(id) {
   return getSiretDetails(id);
 }
 
+function updateInfos(id, infos, userId) {
+  return adspl
+    .database()
+    .ref('/ids/' + id + '/infos')
+    .once('value')
+    .then(snap => snap.val())
+    .then(currentInfos => {
+      const date = new Date().toISOString();
+      return adspl
+        .database()
+        .ref('/ids/' + id + '/_history')
+        .push({
+          date,
+          task: 'infos-update',
+          input: infos,
+          by: userId,
+        })
+        .then(() => {
+          return adspl
+            .database()
+            .ref('/ids/' + id + '/infos')
+            .set(merge(currentInfos || {}, infos))
+            .then(() => {
+              return crm
+                .database()
+                .ref('/activities/' + userId + '/' + moment().format('DD_MM_YYYY'))
+                .push({
+                  scope: 'adspl',
+                  date,
+                  task: 'infos-update',
+                  input: infos,
+                  by: userId,
+                  adsplId: id,
+                });
+            });
+        });
+    });
+}
+
 module.exports = {
   getById,
+  updateInfos,
 };

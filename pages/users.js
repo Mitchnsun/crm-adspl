@@ -4,6 +4,7 @@ import UserContext from '../utils/UserContext';
 import { assign, Machine } from 'xstate';
 import { useMachine } from '@xstate/react';
 import DomainsContext from '../utils/DomainsContext';
+import Link from '../components/atoms/Link';
 
 const machine = Machine({
   id: 'users',
@@ -98,8 +99,8 @@ function UsersView() {
   const [current, send] = useMachine(machine, {
     services: {
       fetchUsers: () => Users.fetch(),
-      enableUser: (_, event) => Users.enable(event.user),
-      disableUser: (_, event) => Users.disable(event.user),
+      enableUser: (_, event) => Users.enable(event.user, currentUser),
+      disableUser: (_, event) => Users.disable(event.user, currentUser),
     },
   });
 
@@ -107,45 +108,83 @@ function UsersView() {
     send('FETCH_USERS');
   }, []);
 
-  const grouped = Users.groupByStatus(current.context.users.filter(u => u.id !== currentUser.uid));
-
   return (
     <div>
-      <h2>Users</h2>
-      <h3>Actives</h3>
-      {grouped.actives.map(user => {
-        return (
-          <div key={user.id}>
-            <span>
-              {user.firstname} {user.lastname}
-            </span>
-            {user.id !== currentUser.id && (
-              <button onClick={() => send({ type: 'DISABLE_USER', user })}>Inactive</button>
-            )}
-          </div>
-        );
-      })}
-
-      <h3>Inactives</h3>
-      {grouped.inactives.map(user => {
-        return (
-          <div key={user.id}>
-            <span>
-              {user.firstname} {user.lastname}
-            </span>
-            {user.id !== currentUser.id && <button onClick={() => send({ type: 'ENABLE_USER', user })}>Active</button>}
-          </div>
-        );
-      })}
+      <table>
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Etat</th>
+            <th>Groupes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {current.context.users.map(user => {
+            return (
+              <tr key={user.id}>
+                <td className="name">
+                  <Link url={'/user?uid=' + user.id} as={'/users/' + user.id}>
+                    {user.firstname} {user.lastname}
+                  </Link>
+                </td>
+                <td className={user.isActive ? 'bg-green' : 'bg-red'}>
+                  <input
+                    type="checkbox"
+                    disabled={user.id === currentUser.id}
+                    checked={user.isActive}
+                    onClick={() => {
+                      if (user.isActive) {
+                        send({ type: 'DISABLE_USER', user });
+                      } else {
+                        send({ type: 'ENABLE_USER', user });
+                      }
+                    }}
+                  />{' '}
+                  {user.isActive ? 'Actif' : 'Inactif'}
+                </td>
+                <td>
+                  <span>
+                    {['adspl'].map(group => (
+                      <span>
+                        <input type="checkbox" checked={(user.groups || []).find(g => g === group)} /> {group}
+                      </span>
+                    ))}
+                  </span>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <style jsx>
+        {`
+          .name {
+            font-weight: bold;
+          }
+          .bg-red {
+            background-color: red;
+            color: white;
+          }
+          .bg-green {
+            background-color: green;
+            color: white;
+          }
+          td {
+            padding: 0.3rem 1rem;
+          }
+          td {
+            border: 1px solid silver;
+          }
+        `}
+      </style>
     </div>
   );
 }
 
-export default function admin({ Users }) {
+export default function users() {
   return (
     <Layout>
-      <h1>Admin</h1>
-      <UsersView Users={Users} />
+      <UsersView />
     </Layout>
   );
 }

@@ -9,3 +9,5 @@ credentials-crm.json
 credentials-gmail.json
 .env-now
 env-config.json
+test-gmail.js
+token.json
