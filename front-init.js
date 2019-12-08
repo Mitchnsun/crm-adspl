@@ -22,13 +22,13 @@ export default function init() {
     createListener,
     adspl: createAdsplDriver(),
   };
-
+  const Activities = createActivities(drivers);
   return {
     Session: createSession(drivers),
-    Tickets: createTickets(drivers, createCounters(drivers)),
+    Tickets: createTickets(drivers, createCounters(drivers), Activities),
     Users: createUsers(drivers),
     Adspl: createAdspl(drivers),
     Emails: createEmails(drivers),
-    Activities: createActivities(drivers),
+    Activities,
   };
 }

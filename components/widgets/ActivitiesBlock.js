@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import moment from 'moment';
 import { assign, Machine } from 'xstate';
 import DomainsContext from '../../utils/DomainsContext';
@@ -54,15 +54,62 @@ const machine = Machine({
   },
 });
 
-function getLabel(key, scope) {
-  switch (key) {
-    case 'infos-update':
-      if (scope === 'adspl') {
+function getLabel(activity, scope) {
+  if (scope === 'adspl') {
+    switch (activity.task) {
+      case 'infos-update':
         return 'Mise à jour des informations du siret: ';
-      }
-    default:
-      return key;
+
+      default:
+        return activity.task;
+    }
   }
+  if (scope === 'crm') {
+    switch (activity.event.type) {
+      case 'create-ticket':
+        return 'Création du ticket ';
+      case 'add-follower':
+        return "Assignation d'un agent sur le ticket ";
+      case 'remove-follower':
+        return "Dé-assignation d'un agent sur le ticket ";
+      case 'update-title':
+        return 'Mise à jour du titre du ticket ';
+      case 'update-description':
+        return 'Mise à jour de la description du ticket ';
+      case 'add-comment':
+        return "Ajout d'un commentaire sur le ticket ";
+      case 'close-ticket':
+        return 'Fermeture du ticket ';
+      case 'reopen-ticket':
+        return 'Ré-ouverture du ticket ';
+      default:
+        return activity.event.type;
+    }
+  }
+  return '';
+}
+
+function Details({ activity }) {
+  const [displayDetails, setDisplayDetails] = useState(false);
+  return (
+    <React.Fragment>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div>
+          {getLabel(activity, activity.scope)}
+          {activity.scope === 'adspl' && activity.adsplId && (
+            <Link url={'/adspl?id=' + activity.adsplId}>{activity.adsplId}</Link>
+          )}
+          {activity.scope === 'crm' && activity.ticketId && (
+            <Link url={'/ticket?id=' + activity.ticketId}>{activity.ticketId}</Link>
+          )}
+        </div>
+        <button onClick={() => setDisplayDetails(!displayDetails)}>
+          {displayDetails ? 'Masquer le détails' : 'Afficher le détails'}
+        </button>
+      </div>
+      {displayDetails && <pre>{JSON.stringify(activity, null, 2)}</pre>}
+    </React.Fragment>
+  );
 }
 
 export function ActivitiesBlock({ userId }) {
@@ -97,7 +144,7 @@ export function ActivitiesBlock({ userId }) {
         >
           Précédent
         </button>
-        <span style={{ margin: '0 1rem' }}>{moment(date, 'DD_MM_YYYY').format('DD MMM YYYY')}</span>
+        <span style={{ margin: '0 1rem' }}>{moment(date, 'DD_MM_YYYY').format('DD/MM/YYYY')}</span>
         <button
           style={{ backgroundColor: 'white', border: 'solid silver 1px', borderRadius: '5px', cursor: 'pointer' }}
           onClick={() =>
@@ -127,7 +174,7 @@ export function ActivitiesBlock({ userId }) {
                     padding: '2px 10px',
                   }}
                 >
-                  {moment(activity.date).format('DD/MM/YYYY HH:mm:ss')}
+                  {moment(activity.date || activity.event.on).format('HH:mm:ss')}
                 </span>
               </td>
               <td>
@@ -144,15 +191,20 @@ export function ActivitiesBlock({ userId }) {
                 </span>
               </td>
               <td>
-                {getLabel(activity.task, activity.scope)}
-                {activity.scope === 'adspl' && activity.adsplId && (
-                  <Link url={'/adspl?id=' + activity.adsplId}>{activity.adsplId}</Link>
-                )}
+                <Details activity={activity} />
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      <style jsx>{`
+        table {
+          width: 100%;
+        }
+        td {
+          vertical-align: baseline;
+        }
+      `}</style>
     </div>
   );
 }

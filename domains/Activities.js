@@ -1,5 +1,6 @@
 import firebase from 'firebase/app';
 import 'firebase/database';
+import moment from 'moment';
 
 export default function createActivities() {
   if (!firebase.apps.length) {
@@ -24,6 +25,9 @@ export default function createActivities() {
         .once('value')
         .then(s => s.val())
         .then(res => (res ? Object.values(res) : []));
+    },
+    log(event, user) {
+      return db.ref('/activities/' + user.id + '/' + moment().format('DD_MM_YYYY')).push(event);
     },
   };
 }

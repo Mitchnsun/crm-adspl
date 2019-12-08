@@ -78,7 +78,7 @@ function applyEvent(ticket, event) {
   }
 }
 
-export default function createTickets(drivers, counters) {
+export default function createTickets(drivers, counters, Activities) {
   const dbTickets = drivers.dbList('tickets');
   const counter = counters.of('tickets');
 
@@ -91,22 +91,24 @@ export default function createTickets(drivers, counters) {
     },
     fetchTicket: id => dbTickets.get(id),
     removeFollower: (ticket, user) => {
-      const updatedTicket = applyEvent(ticket, {
+      const event = {
         type: 'remove-follower',
         on: Date.now(),
         by: user.id,
         value: user.id,
-      });
-      return persist(updatedTicket);
+      };
+      const updatedTicket = applyEvent(ticket, event);
+      return Activities.log({ scope: 'crm', event, ticketId: ticket.id }, user).then(() => persist(updatedTicket));
     },
     addFollower: (ticket, user) => {
-      const updatedTicket = applyEvent(ticket, {
+      const event = {
         type: 'add-follower',
         on: Date.now(),
         by: user.id,
         value: user.id,
-      });
-      return persist(updatedTicket);
+      };
+      const updatedTicket = applyEvent(ticket, event);
+      return Activities.log({ scope: 'crm', event, ticketId: ticket.id }, user).then(() => persist(updatedTicket));
     },
     getAll: async config => {
       const all = await dbTickets.getAll(config);
@@ -117,19 +119,25 @@ export default function createTickets(drivers, counters) {
       if (!params.title) return Promise.reject(new Error('Params title missing'));
       if (!params.description) return Promise.reject(new Error('Params description missing'));
       return counter.get().then(value => {
-        return dbTickets.add({
-          id: dbTickets.generateId(),
-          idNum: value,
-          createAt: Date.now(),
-          ...params,
-          createBy: user.id,
-          author: user.firstname + ' ' + user.lastname,
-          _history: [],
+        const id = dbTickets.generateId();
+        return Activities.log(
+          { scope: 'crm', event: { type: 'create-ticket', params, on: Date.now(), by: user.id }, ticketId: id },
+          user,
+        ).then(() => {
+          return dbTickets.add({
+            id,
+            idNum: value,
+            createAt: Date.now(),
+            ...params,
+            createBy: user.id,
+            author: user.firstname + ' ' + user.lastname,
+            _history: [],
+          });
         });
       });
     },
     addComment(params, user) {
-      const updatedTicket = applyEvent(params.ticket, {
+      const event = {
         type: 'add-comment',
         on: Date.now(),
         by: user.id,
@@ -138,21 +146,27 @@ export default function createTickets(drivers, counters) {
           by: user.id,
           createAt: Date.now(),
         },
-      });
-      return persist(updatedTicket);
+      };
+      const updatedTicket = applyEvent(params.ticket, event);
+      return Activities.log({ scope: 'crm', event, ticketId: params.ticket.id }, user).then(() =>
+        persist(updatedTicket),
+      );
     },
     updateComment(params, user) {
-      const updatedTicket = applyEvent(params.ticket, {
+      const event = {
         type: 'update-comment',
         on: Date.now(),
         by: user.id,
         comment: params.comment,
         newText: params.newText,
-      });
-      return persist(updatedTicket);
+      };
+      const updatedTicket = applyEvent(params.ticket, event);
+      return Activities.log({ scope: 'crm', event, ticketId: params.ticket.id }, user).then(() =>
+        persist(updatedTicket),
+      );
     },
     closeTicket(params, user) {
-      const updatedTicket = applyEvent(params.ticket, {
+      const event = {
         type: 'close-ticket',
         on: Date.now(),
         by: user.id,
@@ -163,11 +177,14 @@ export default function createTickets(drivers, counters) {
               createAt: Date.now(),
             }
           : null,
-      });
-      return persist(updatedTicket);
+      };
+      const updatedTicket = applyEvent(params.ticket, event);
+      return Activities.log({ scope: 'crm', event, ticketId: params.ticket.id }, user).then(() =>
+        persist(updatedTicket),
+      );
     },
     reopenTicket(params, user) {
-      const updatedTicket = applyEvent(params.ticket, {
+      const event = {
         type: 'reopen-ticket',
         on: Date.now(),
         by: user.id,
@@ -178,28 +195,33 @@ export default function createTickets(drivers, counters) {
               createAt: Date.now(),
             }
           : null,
-      });
-      return persist(updatedTicket);
+      };
+      const updatedTicket = applyEvent(params.ticket, event);
+      return Activities.log({ scope: 'crm', event, ticketId: params.ticket.id }, user).then(() =>
+        persist(updatedTicket),
+      );
     },
     updateTitle({ ticket, value }, user) {
-      const updatedTicket = applyEvent(ticket, {
+      const event = {
         type: 'update-title',
         on: Date.now(),
         by: user.id,
         value,
         was: ticket.title,
-      });
-      return persist(updatedTicket);
+      };
+      const updatedTicket = applyEvent(ticket, event);
+      return Activities.log({ scope: 'crm', event, ticketId: ticket.id }, user).then(() => persist(updatedTicket));
     },
     updateDescription({ ticket, value }, user) {
-      const updatedTicket = applyEvent(ticket, {
+      const event = {
         type: 'update-description',
         on: Date.now(),
         by: user.id,
         value,
         was: ticket.description,
-      });
-      return persist(updatedTicket);
+      };
+      const updatedTicket = applyEvent(ticket, event);
+      return Activities.log({ scope: 'crm', event, ticketId: ticket.id }, user).then(() => persist(updatedTicket));
     },
   };
 }
