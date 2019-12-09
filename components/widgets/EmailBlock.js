@@ -69,14 +69,21 @@ const Answer = ({ answer }) => {
   return (
     <div>
       <textarea row={4} style={{ width: '100%' }} ref={ref}></textarea>
-      <button onClick={() => answer(ref.current.value)}>Répondre</button>
+      <button
+        onClick={() => {
+          answer(ref.current.value);
+          ref.current.value = '';
+        }}
+      >
+        Répondre
+      </button>
     </div>
   );
 };
 
 const extractEmail = text => (/<(.*)>/.test(text) ? /<(.*)>/.exec(text)[1] : text);
 
-export function EmailBlock({ emailId }) {
+export function EmailBlock({ emailId, onResponse }) {
   const user = useContext(UserContext);
   const domains = useContext(DomainsContext);
 
@@ -85,7 +92,7 @@ export function EmailBlock({ emailId }) {
   const [current, send] = useMachine(machine, {
     services: {
       fetchEmail: () => domains.Emails.getById(emailId, user),
-      sendEmail: (_, { message, to }) => domains.Emails.sendEmail({ message, to }, user),
+      sendEmail: (_, { body }) => domains.Emails.sendEmail(body, user).then(() => onResponse(body.message)),
     },
   });
 
@@ -118,12 +125,21 @@ export function EmailBlock({ emailId }) {
           <br />
           <Answer
             answer={message => {
-              const sender = current.context.email.data.payload.headers.find(h => h.name.toLowerCase() === 'from')
+              const fromValue = current.context.email.data.payload.headers.find(h => h.name.toLowerCase() === 'from')
                 .value;
+              const toValue = current.context.email.data.payload.headers.find(h => h.name.toLowerCase() === 'to').value;
               send({
                 type: 'SEND_EMAIL',
-                message,
-                to: extractEmail(sender),
+                body: {
+                  message,
+                  subject: "Réponse de l'ADSPL",
+                  to: {
+                    email: extractEmail(fromValue),
+                  },
+                  from: {
+                    email: extractEmail(toValue),
+                  },
+                },
               });
             }}
           />

@@ -130,11 +130,6 @@ app.get('/googlea878fa7e95ce857c.html', (req, res) => {
   fs.createReadStream('./googlea878fa7e95ce857c.html').pipe(res);
 });
 
-app.post('/onEmail', (req, res) => {
-  console.log(req.body);
-  res.status(204).send('');
-});
-
 app.get('/adspl/:id', validateFirebaseIdToken, checkUser(['admin', 'agent']), async (req, res) => {
   const data = await adspl.getById(req.params.id);
   res.json(data);
@@ -161,15 +156,38 @@ app.get('/email/:id', validateFirebaseIdToken, checkUser(['admin', 'agent']), as
   res.json(data);
 });
 
+const mail = require('./mail-mailjet');
 app.post('/email', validateFirebaseIdToken, checkUser(['admin', 'agent']), async (req, res) => {
   try {
-    await gmailApi.sendMessage(JSON.parse(req.body));
+    await mail.sendMessage(JSON.parse(req.body));
   } catch (e) {
     console.error(e);
     res.status(500).send(e.message);
     return;
   }
   res.send();
+});
+
+const { onReceiveGmailEmail } = require('./crm')(crm);
+app.post('/onEmail', async (req, res) => {
+  try {
+    const {
+      message: { data },
+    } = req.body;
+
+    const buff = Buffer.from(data, 'base64');
+    const text = buff.toString('ascii');
+    const { historyId } = JSON.parse(text);
+
+    if (!historyId) return res.status(500).send('');
+
+    await gmailApi.addNewTicket(historyId, onReceiveGmailEmail);
+    console.log('received push email [historyId:' + historyId + ']');
+    return res.status(204).send('');
+  } catch (e) {
+    console.error(e);
+    return res.status(500).send('');
+  }
 });
 
 // This HTTPS endpoint can only be accessed by your Firebase Users.

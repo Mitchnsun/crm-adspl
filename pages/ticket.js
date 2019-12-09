@@ -420,7 +420,12 @@ const Ticket = props => {
       {description && (
         <DescriptionBlock description={description} onChange={value => send({ type: 'UPDATE_DESCRIPTION', value })} />
       )}
-      {emailId && <EmailBlock emailId={emailId} />}
+      {emailId && (
+        <EmailBlock
+          emailId={emailId}
+          onResponse={responseText => send({ type: 'ADD_COMMENT', comment: 'Réponse envoyée: ' + responseText })}
+        />
+      )}
 
       <h2>Suivi</h2>
       {comments.map(comment => (
