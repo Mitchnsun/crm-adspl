@@ -16,7 +16,7 @@
 'use strict';
 
 const functions = require('firebase-functions');
-
+const fs = require('fs');
 const express = require('express');
 const cookieParser = require('cookie-parser')();
 const { crm } = require('./connections');
@@ -126,6 +126,15 @@ app.post('/createAccount', async (req, res, next) => {
   res.status(204).send('');
 });
 
+app.get('/googlea878fa7e95ce857c.html', (req, res) => {
+  fs.createReadStream('./googlea878fa7e95ce857c.html').pipe(res);
+});
+
+app.post('/onEmail', (req, res) => {
+  console.log(req.body);
+  res.status(204).send('');
+});
+
 app.get('/adspl/:id', validateFirebaseIdToken, checkUser(['admin', 'agent']), async (req, res) => {
   const data = await adspl.getById(req.params.id);
   res.json(data);
@@ -145,12 +154,13 @@ app.post('/adspl/infos/:id', validateFirebaseIdToken, checkUser(['admin', 'agent
     });
   }
 });
-/*
+
 const gmailApi = require('./gmail')();
 app.get('/email/:id', validateFirebaseIdToken, checkUser(['admin', 'agent']), async (req, res) => {
   const data = await gmailApi.getById(req.params.id);
   res.json(data);
 });
+
 app.post('/email', validateFirebaseIdToken, checkUser(['admin', 'agent']), async (req, res) => {
   try {
     await gmailApi.sendMessage(JSON.parse(req.body));
@@ -161,7 +171,6 @@ app.post('/email', validateFirebaseIdToken, checkUser(['admin', 'agent']), async
   }
   res.send();
 });
-*/
 
 // This HTTPS endpoint can only be accessed by your Firebase Users.
 // Requests need to be authorized by providing an `Authorization` HTTP header

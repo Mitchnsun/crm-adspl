@@ -26,7 +26,7 @@ export default function init() {
   return {
     Session: createSession(drivers),
     Tickets: createTickets(drivers, createCounters(drivers), Activities),
-    Users: createUsers(drivers),
+    Users: createUsers(drivers, Activities),
     Adspl: createAdspl(drivers),
     Emails: createEmails(drivers),
     Activities,

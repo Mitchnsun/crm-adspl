@@ -44,11 +44,30 @@ const machine = Machine({
       on: {
         ENABLE_USER: 'enablingUser',
         DISABLE_USER: 'disablingUser',
+        UPDATE_GROUPS: 'updatingGroups',
       },
     },
     failure: {
       on: {
         RETRY: 'loading',
+      },
+    },
+    updatingGroups: {
+      invoke: {
+        src: 'updateGroups',
+        onDone: {
+          target: 'success',
+          actions: assign({
+            users: (context, event) => context.users.map(u => (u.id === event.data.id ? event.data : u)),
+            error: () => null,
+          }),
+        },
+        onError: {
+          target: 'failure',
+          actions: assign({
+            error: (_, event) => event.data,
+          }),
+        },
       },
     },
     disablingUser: {
@@ -101,6 +120,7 @@ function UsersView() {
       fetchUsers: () => Users.fetch(),
       enableUser: (_, event) => Users.enable(event.user, currentUser),
       disableUser: (_, event) => Users.disable(event.user, currentUser),
+      updateGroups: (_, event) => Users.updateGroups(event.groups, event.user, currentUser),
     },
   });
 
@@ -146,7 +166,20 @@ function UsersView() {
                   <span>
                     {['adspl'].map(group => (
                       <span>
-                        <input type="checkbox" checked={(user.groups || []).find(g => g === group)} /> {group}
+                        <input
+                          type="checkbox"
+                          defaultChecked={(user.groups || []).find(g => g === group)}
+                          onChange={e =>
+                            send({
+                              type: 'UPDATE_GROUPS',
+                              user,
+                              groups: e.target.checked
+                                ? (user.groups || []).concat(group)
+                                : (user.groups || []).filter(g => g !== group),
+                            })
+                          }
+                        />{' '}
+                        {group}
                       </span>
                     ))}
                   </span>

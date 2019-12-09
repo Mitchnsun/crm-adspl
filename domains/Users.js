@@ -1,4 +1,4 @@
-export default function createUsers(drivers) {
+export default function createUsers(drivers, Activities) {
   const dbUsers = drivers.db('users');
 
   const names = {};
@@ -22,23 +22,53 @@ export default function createUsers(drivers) {
     get(id) {
       return dbUsers.get(id);
     },
-    updateGroups(groups, user) {},
+    updateGroups(groups, user, agent) {
+      const event = {
+        type: 'update-groups',
+        with: groups,
+        was: user.groups || [],
+        on: new Date().toISOString(),
+        by: agent.id,
+      };
+
+      return Activities.log({ scope: 'crm', event, userId: user.id }, agent).then(() => {
+        return dbUsers.update({
+          ...user,
+          groups,
+          _history: (user._history || []).concat([event]),
+        });
+      });
+    },
     enable(user, agent) {
-      return dbUsers.update({
-        ...user,
-        isActive: true,
-        _history: (user._history || []).concat([
-          { update: 'isActive', with: true, was: user.isActive, on: new Date().toISOString(), by: agent.id },
-        ]),
+      const event = {
+        type: 'update-isActive',
+        with: true,
+        was: user.isActive,
+        on: new Date().toISOString(),
+        by: agent.id,
+      };
+      return Activities.log({ scope: 'crm', event, userId: user.id }, agent).then(() => {
+        return dbUsers.update({
+          ...user,
+          isActive: true,
+          _history: (user._history || []).concat([event]),
+        });
       });
     },
     disable(user, agent) {
-      return dbUsers.update({
-        ...user,
-        isActive: false,
-        _history: (user._history || []).concat([
-          { update: 'isActive', with: false, was: user.isActive, on: new Date().toISOString(), by: agent.id },
-        ]),
+      const event = {
+        type: 'update-isActive',
+        with: false,
+        was: user.isActive,
+        on: new Date().toISOString(),
+        by: agent.id,
+      };
+      return Activities.log({ scope: 'crm', event, userId: user.id }, agent).then(() => {
+        return dbUsers.update({
+          ...user,
+          isActive: false,
+          _history: (user._history || []).concat([event]),
+        });
       });
     },
     groupByStatus: data =>
