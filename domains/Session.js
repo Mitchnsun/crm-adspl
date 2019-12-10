@@ -44,7 +44,7 @@ export default function createSession(drivers) {
         });
       });
     },
-    listen: (cb, currentRoute) => {
+    listen: cb => {
       return drivers.auth.listen(async userAuth => {
         if (userAuth) {
           const user = await dbUsers.get(userAuth.uid);
@@ -63,7 +63,6 @@ export default function createSession(drivers) {
             state.user = createAdmin(drivers)(state.user);
           }
           cb(state);
-          drivers.router.onConnect(currentRoute);
         } else {
           isConnected = false;
           drivers.router.onDisconnect();

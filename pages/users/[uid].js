@@ -1,10 +1,10 @@
 import { useContext, useEffect } from 'react';
-import Layout from '../components/organismes/Layout';
-import Link from '../components/atoms/Link';
-import DomainsContext from '../utils/DomainsContext';
+import Layout from '../../components/organismes/Layout';
+import Link from '../../components/atoms/Link';
+import DomainsContext from '../../utils/DomainsContext';
 import { assign, Machine } from 'xstate';
 import { useMachine } from '@xstate/react';
-import { ActivitiesBlock } from '../components/widgets/ActivitiesBlock';
+import { ActivitiesBlock } from '../../components/widgets/ActivitiesBlock';
 
 const machine = Machine({
   id: 'user',
@@ -66,8 +66,6 @@ export default function user({ uid }) {
 
   if (!current.context.user) return null;
   const user = current.context.user;
-
-  console.log('current', current);
   return (
     <Layout>
       <Link url="/users">Back</Link>

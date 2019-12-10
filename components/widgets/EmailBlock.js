@@ -68,15 +68,17 @@ const Answer = ({ answer }) => {
   const ref = createRef();
   return (
     <div>
-      <textarea row={4} style={{ width: '100%' }} ref={ref}></textarea>
-      <button
-        onClick={() => {
-          answer(ref.current.value);
-          ref.current.value = '';
-        }}
-      >
-        Répondre
-      </button>
+      <textarea rows={7} style={{ width: '100%' }} ref={ref}></textarea>
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <button
+          onClick={() => {
+            answer(ref.current.value);
+            ref.current.value = '';
+          }}
+        >
+          Répondre
+        </button>
+      </div>
     </div>
   );
 };

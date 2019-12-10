@@ -12,9 +12,9 @@ const TicketLink = ({ ticket }) => (
       <StatusChip status={ticket.status} />
     </td>
     <td>
-      <Link url={`/ticket?id=${ticket.id}`}>{ticket.author !== 'GMAIL' ? ticket.title : mapGmail(ticket.title)}</Link>
+      <Link url={`/tickets/${ticket.id}`}>{ticket.author !== 'GMAIL' ? ticket.title : mapGmail(ticket.title)}</Link>
     </td>
-    <td>{ticket.author}</td>
+    <td>{ticket.author === 'GMAIL' ? 'EMAIL' : ticket.author}</td>
     <style jsx>{`
       tr:hover {
         background-color: ${colors.SKY_LIGHT};

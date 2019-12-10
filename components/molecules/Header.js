@@ -7,15 +7,18 @@ import colors from '../../styles/colors';
 const Header = () => {
   const session = useContext(SessionContext);
   const user = useContext(UserContext);
+
   return (
     <header>
       <div>
         <Link href="/">
           <a>Tickets</a>
         </Link>
-        <Link href="/adspl">
-          <a>ADSPL</a>
-        </Link>
+        {user && (user.groups || []).includes('adspl') && (
+          <Link href="/adspl">
+            <a>ADSPL</a>
+          </Link>
+        )}
         {user && user.isAdmin() && (
           <Link href="/users">
             <a>Users</a>

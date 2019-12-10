@@ -35,7 +35,7 @@ class MyApp extends App {
     return (
       <SessionContext.Provider value={Session}>
         <DomainsContext.Provider value={{ Adspl, Tickets, Users, Emails, Activities }}>
-          <Authentication currentRoute={this.props.router.route}>
+          <Authentication currentRoute={this.props.router.asPath}>
             <Component {...pageProps} {...this.state} />
           </Authentication>
           <style jsx global>{`

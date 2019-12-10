@@ -3,14 +3,14 @@ import moment from 'moment';
 import marked from 'marked';
 import DOMPurify from 'dompurify';
 
-import Title from '../components/atoms/Title';
-import Layout from '../components/organismes/Layout';
-import UserContext from '../utils/UserContext';
+import Title from '../../components/atoms/Title';
+import Layout from '../../components/organismes/Layout';
+import UserContext from '../../utils/UserContext';
 import { assign, Machine } from 'xstate';
 import { useMachine } from '@xstate/react';
-import colors from '../styles/colors';
-import { EmailBlock } from '../components/widgets/EmailBlock';
-import DomainsContext from '../utils/DomainsContext';
+import colors from '../../styles/colors';
+import { EmailBlock } from '../../components/widgets/EmailBlock';
+import DomainsContext from '../../utils/DomainsContext';
 
 const machine = Machine(
   {

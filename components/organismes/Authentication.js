@@ -39,12 +39,11 @@ const machine = Machine({
 export function Authentication({ children, currentRoute }) {
   const [current, send] = useMachine(machine);
   const session = useContext(SessionContext);
-
   useEffect(() => {
     return session.listen(({ user }) => {
       if (user) send({ type: 'CONNECT', user });
       else send({ type: 'DISCONNECT' });
-    }, currentRoute);
+    });
   }, []);
 
   return (
