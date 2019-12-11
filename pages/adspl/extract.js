@@ -8,6 +8,8 @@ export default function extract() {
   const { Adspl } = useContext(DomainsContext);
   const user = useContext(UserContext);
   const [year, setYear] = useState('2018');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   return (
     <Layout>
       <AdsplMenu />
@@ -22,7 +24,25 @@ export default function extract() {
         <label>2019</label>
       </div>
       <br />
-      <button onClick={() => Adspl.downloadExtract(year, user)}>Extraire les données sous format CSV</button>
+      <button
+        disabled={loading}
+        onClick={() => {
+          setLoading(true);
+          Adspl.downloadExtract(year, user)
+            .then(() => {
+              setLoading(false);
+              setError(false);
+            })
+            .catch(() => {
+              setLoading(false);
+              setError(true);
+            });
+        }}
+      >
+        Extraire les données sous format CSV
+      </button>
+      {loading && <label>En cours...</label>}
+      {error && <label>Une erreur est survenue</label>}
       <style jsx>{`
         input {
           margin-right: 0.5em;

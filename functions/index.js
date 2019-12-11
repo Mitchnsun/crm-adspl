@@ -144,7 +144,7 @@ app.get('/adspl/extract', validateFirebaseIdToken, checkUser(['admin']), (req, r
   adspl.downloadExtract(year, data => res.write(data), () => res.end());
 });
 
-app.get('/adspl/:id', validateFirebaseIdToken, checkUser(['admin', 'agent']), async (req, res) => {
+app.get('/adspl/details/:id', validateFirebaseIdToken, checkUser(['admin', 'agent']), async (req, res) => {
   const data = await adspl.getById(req.params.id);
   res.json(data);
 });

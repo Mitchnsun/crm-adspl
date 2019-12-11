@@ -25,7 +25,7 @@ export default function createAdspl() {
     },
     getDetails(id, user) {
       return user._authUser.getIdToken(true).then(function(idToken) {
-        return fetch(process.env.CRM_API_URL + '/adspl/' + id, {
+        return fetch(process.env.CRM_API_URL + '/adspl/details/' + id, {
           headers: {
             authorization: `Bearer ${idToken}`,
           },
