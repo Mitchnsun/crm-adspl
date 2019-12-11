@@ -82,6 +82,10 @@ function getLabel(activity, scope) {
         return 'Fermeture du ticket ';
       case 'reopen-ticket':
         return 'Ré-ouverture du ticket ';
+      case 'update-isActive':
+        return "Mise à jour de l'état du compte de ";
+      case 'update-groups':
+        return 'Mise à jour des groupes de compte de ';
       default:
         return activity.event.type;
     }
@@ -101,6 +105,9 @@ function Details({ activity }) {
           )}
           {activity.scope === 'crm' && activity.ticketId && (
             <Link url={'/tickets/' + activity.ticketId}>{activity.ticketId}</Link>
+          )}
+          {activity.scope === 'crm' && activity.userId && (
+            <Link url={'/users/' + activity.userId}>{activity.userId}</Link>
           )}
         </div>
         <button onClick={() => setDisplayDetails(!displayDetails)}>

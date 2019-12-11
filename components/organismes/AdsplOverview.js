@@ -438,6 +438,10 @@ function toJSX(item, index) {
         />
       );
     }
+    case 'infos-update': {
+      const { date } = item;
+      return <Line key={index} item={item} date={date} name={`Mise à jour des informations`} />;
+    }
     default:
       if (item.date && item.task) {
         return <Line key={index} item={item} date={item.date} name={item.task} />;
