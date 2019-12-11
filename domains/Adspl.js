@@ -9,5 +9,8 @@ export default function createAdspl(drivers) {
     updateInfos(id, datas, user) {
       return drivers.adspl.updateInfos(id, datas, user);
     },
+    downloadExtract(year, user) {
+      return drivers.adspl.downloadExtract(year, user);
+    },
   };
 }

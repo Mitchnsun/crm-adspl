@@ -8,6 +8,7 @@ import UserContext from '../utils/UserContext';
 import { render } from '../utils/render-machine';
 import colors from '../styles/colors';
 import DomainsContext from '../utils/DomainsContext';
+import { AdsplMenu } from '../components/molecules/AdsplMenu';
 
 const machine = Machine({
   id: 'fetch',
@@ -85,6 +86,7 @@ export default function adspl() {
   const idRef = useRef(id);
   return (
     <Layout>
+      <AdsplMenu />
       <div>
         <input type="text" ref={idRef} placeholder="Siret/Siren" defaultValue={id} />
         <button onClick={() => send({ type: 'SEARCH', id: idRef.current.value })}>GO</button>
@@ -105,11 +107,10 @@ export default function adspl() {
       </div>
 
       {render(current, {
-        searching: () => <p>loading...</p>,
+        searching: () => <p>Chargement...</p>,
         success: () => {
-          idRef.current.value = '';
           if (current.context.data) return <AdsplOverview data={current.context.data} />;
-          return 'No data';
+          return 'Pas de données';
         },
         failure: () => <p>{current.context.error}</p>,
       })}

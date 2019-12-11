@@ -130,6 +130,20 @@ app.get('/googlea878fa7e95ce857c.html', (req, res) => {
   fs.createReadStream('./googlea878fa7e95ce857c.html').pipe(res);
 });
 
+app.get('/adspl/extract', validateFirebaseIdToken, checkUser(['admin']), (req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/csv');
+
+  const { year } = req.query;
+
+  if (!year) {
+    res.status(400).send('No year provided!');
+    return;
+  }
+
+  adspl.downloadExtract(year, data => res.write(data), () => res.end());
+});
+
 app.get('/adspl/:id', validateFirebaseIdToken, checkUser(['admin', 'agent']), async (req, res) => {
   const data = await adspl.getById(req.params.id);
   res.json(data);

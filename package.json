@@ -36,6 +36,7 @@
     "dompurify": "^2.0.3",
     "dotenv": "^8.0.0",
     "dotenv-webpack": "^1.7.0",
+    "downloadjs": "^1.4.7",
     "express": "^4.17.1",
     "firebase": "^6.3.3",
     "isomorphic-unfetch": "^3.0.0",
