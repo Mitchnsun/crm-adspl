@@ -4,9 +4,10 @@ export default function createAdspl() {
   return {
     downloadExtract(year, user) {
       return user._authUser.getIdToken(true).then(function(idToken) {
-        return fetch(process.env.CRM_API_URL + '/adspl/extract?year=' + year, {
+        return fetch(process.env.CRM_API_URL + '/adspl/extract/' + year, {
           headers: {
             authorization: `Bearer ${idToken}`,
+            'Content-Type': 'text/plain',
           },
         })
           .then(res => {
@@ -20,6 +21,7 @@ export default function createAdspl() {
           })
           .catch(err => {
             console.error(err);
+            throw err;
           });
       });
     },

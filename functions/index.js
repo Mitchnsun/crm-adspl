@@ -21,7 +21,11 @@ const express = require('express');
 const cookieParser = require('cookie-parser')();
 const { crm } = require('./connections');
 
-const cors = require('cors')({ origin: true, credentials: true });
+const corsOptions = {
+  origin: true,
+  credentials: true,
+};
+const cors = require('cors')(corsOptions);
 const app = express();
 const adspl = require('./adspl');
 
@@ -130,17 +134,16 @@ app.get('/googlea878fa7e95ce857c.html', (req, res) => {
   fs.createReadStream('./googlea878fa7e95ce857c.html').pipe(res);
 });
 
-app.get('/adspl/extract', validateFirebaseIdToken, checkUser(['admin']), (req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/csv');
-
-  const { year } = req.query;
+app.get('/adspl/extract/:year', validateFirebaseIdToken, checkUser(['admin']), (req, res) => {
+  const { year } = req.params;
 
   if (!year) {
     res.status(400).send('No year provided!');
     return;
   }
 
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/csv');
   adspl.downloadExtract(year, data => res.write(data), () => res.end());
 });
 
