@@ -85,7 +85,7 @@ const Answer = ({ answer }) => {
 
 const extractEmail = text => (/<(.*)>/.test(text) ? /<(.*)>/.exec(text)[1] : text);
 
-export function EmailBlock({ emailId, onResponse }) {
+export function EmailBlock({ emailId, onResponse, disableEdition }) {
   const user = useContext(UserContext);
   const domains = useContext(DomainsContext);
 
@@ -101,8 +101,6 @@ export function EmailBlock({ emailId, onResponse }) {
   useEffect(() => {
     send('FETCH');
   }, []);
-
-  console.log('emailBlock', current);
 
   if (current.context.email) {
     try {
@@ -125,26 +123,29 @@ export function EmailBlock({ emailId, onResponse }) {
             }}
           />
           <br />
-          <Answer
-            answer={message => {
-              const fromValue = current.context.email.data.payload.headers.find(h => h.name.toLowerCase() === 'from')
-                .value;
-              const toValue = current.context.email.data.payload.headers.find(h => h.name.toLowerCase() === 'to').value;
-              send({
-                type: 'SEND_EMAIL',
-                body: {
-                  message,
-                  subject: "Réponse de l'ADSPL",
-                  to: {
-                    email: extractEmail(fromValue),
+          {!disableEdition && (
+            <Answer
+              answer={message => {
+                const fromValue = current.context.email.data.payload.headers.find(h => h.name.toLowerCase() === 'from')
+                  .value;
+                const toValue = current.context.email.data.payload.headers.find(h => h.name.toLowerCase() === 'to')
+                  .value;
+                send({
+                  type: 'SEND_EMAIL',
+                  body: {
+                    message,
+                    subject: "Réponse de l'ADSPL",
+                    to: {
+                      email: extractEmail(fromValue),
+                    },
+                    from: {
+                      email: extractEmail(toValue),
+                    },
                   },
-                  from: {
-                    email: extractEmail(toValue),
-                  },
-                },
-              });
-            }}
-          />
+                });
+              }}
+            />
+          )}
         </div>
       );
     } catch (e) {

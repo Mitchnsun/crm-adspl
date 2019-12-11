@@ -165,7 +165,7 @@ function UsersView() {
                 <td>
                   <span>
                     {['adspl'].map(group => (
-                      <span>
+                      <span key={group}>
                         <input
                           type="checkbox"
                           defaultChecked={(user.groups || []).find(g => g === group)}

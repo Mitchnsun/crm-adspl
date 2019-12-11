@@ -100,7 +100,7 @@ function Details({ activity }) {
             <Link url={'/adspl?id=' + activity.adsplId}>{activity.adsplId}</Link>
           )}
           {activity.scope === 'crm' && activity.ticketId && (
-            <Link url={'/ticket?id=' + activity.ticketId}>{activity.ticketId}</Link>
+            <Link url={'/tickets/' + activity.ticketId}>{activity.ticketId}</Link>
           )}
         </div>
         <button onClick={() => setDisplayDetails(!displayDetails)}>
@@ -162,8 +162,8 @@ export function ActivitiesBlock({ userId }) {
       {current.context.activities.length === 0 && <p>Pas d'activités</p>}
       <table>
         <tbody>
-          {current.context.activities.map(activity => (
-            <tr key={activity.date}>
+          {current.context.activities.map((activity, i) => (
+            <tr key={i}>
               <td>
                 <span
                   style={{

@@ -21,7 +21,6 @@ function applyEvent(ticket, event) {
         ...ticket,
         _history: (ticket._history || []).concat([event]),
         status: 'IN_PROGRESS',
-        comments: event.comment ? (ticket.comments || []).concat([event.comment]) : ticket.comments,
       };
     }
     case 'close-ticket': {
@@ -29,7 +28,6 @@ function applyEvent(ticket, event) {
         ...ticket,
         _history: (ticket._history || []).concat([event]),
         status: 'CLOSED',
-        comments: event.comment ? (ticket.comments || []).concat([event.comment]) : ticket.comments,
       };
     }
     case 'add-comment': {
@@ -141,11 +139,7 @@ export default function createTickets(drivers, counters, Activities) {
         type: 'add-comment',
         on: Date.now(),
         by: user.id,
-        value: {
-          text: params.comment,
-          by: user.id,
-          createAt: Date.now(),
-        },
+        value: params.comment,
       };
       const updatedTicket = applyEvent(params.ticket, event);
       return Activities.log({ scope: 'crm', event, ticketId: params.ticket.id }, user).then(() =>
@@ -170,13 +164,7 @@ export default function createTickets(drivers, counters, Activities) {
         type: 'close-ticket',
         on: Date.now(),
         by: user.id,
-        comment: params.comment
-          ? {
-              text: params.comment,
-              by: user.id,
-              createAt: Date.now(),
-            }
-          : null,
+        comment: params.comment,
       };
       const updatedTicket = applyEvent(params.ticket, event);
       return Activities.log({ scope: 'crm', event, ticketId: params.ticket.id }, user).then(() =>
@@ -188,13 +176,7 @@ export default function createTickets(drivers, counters, Activities) {
         type: 'reopen-ticket',
         on: Date.now(),
         by: user.id,
-        comment: params.comment
-          ? {
-              text: params.comment,
-              by: user.id,
-              createAt: Date.now(),
-            }
-          : null,
+        comment: params.comment,
       };
       const updatedTicket = applyEvent(params.ticket, event);
       return Activities.log({ scope: 'crm', event, ticketId: params.ticket.id }, user).then(() =>

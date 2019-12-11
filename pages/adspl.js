@@ -1,6 +1,6 @@
 import Layout from '../components/organismes/Layout';
-
-import { useRef, useContext } from 'react';
+import { useRouter } from 'next/router';
+import { useRef, useContext, useEffect } from 'react';
 import { Machine, assign } from 'xstate';
 import { useMachine } from '@xstate/react';
 import { AdsplOverview } from '../components/organismes/AdsplOverview';
@@ -64,6 +64,9 @@ const machine = Machine({
 export default function adspl() {
   const { Adspl } = useContext(DomainsContext);
   const user = useContext(UserContext);
+  const router = useRouter();
+  const { id } = router.query;
+
   const [current, send] = useMachine(machine, {
     services: {
       fetchData: (context, event) => Adspl.getDetails(event.id, user),
@@ -72,11 +75,18 @@ export default function adspl() {
       searchValid: (context, event) => Adspl.validateId(event.id),
     },
   });
-  const idRef = useRef(null);
+
+  useEffect(() => {
+    if (id) {
+      send({ type: 'SEARCH', id });
+    }
+  }, []);
+
+  const idRef = useRef(id);
   return (
     <Layout>
       <div>
-        <input type="text" ref={idRef} placeholder="Siret/Siren" />
+        <input type="text" ref={idRef} placeholder="Siret/Siren" defaultValue={id} />
         <button onClick={() => send({ type: 'SEARCH', id: idRef.current.value })}>GO</button>
         <style jsx>{`
           input {

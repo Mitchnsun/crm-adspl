@@ -238,7 +238,7 @@ const editableMachine = Machine({
 
 const Markdown = ({ text }) => <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked(text)) }} />;
 
-const TitleBlock = ({ title, onChange }) => {
+const TitleBlock = ({ title, onChange, disableEdition }) => {
   const inputRef = createRef();
   const [current, send] = useMachine(editableMachine, {
     actions: {
@@ -261,14 +261,16 @@ const TitleBlock = ({ title, onChange }) => {
       <Title type="primary" trunc>
         {title || 'Title'}
       </Title>
-      <div>
-        <button onClick={() => send('EDIT')}>Modifier</button>
-      </div>
+      {!disableEdition && (
+        <div>
+          <button onClick={() => send('EDIT')}>Modifier</button>
+        </div>
+      )}
     </div>
   );
 };
 
-const DescriptionBlock = ({ description, onChange }) => {
+const DescriptionBlock = ({ description, onChange, disableEdition }) => {
   const textRef = createRef();
   const [current, send] = useMachine(editableMachine, {
     actions: {
@@ -293,16 +295,18 @@ const DescriptionBlock = ({ description, onChange }) => {
     <React.Fragment>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2>Description</h2>
-        <div>
-          <button onClick={() => send('EDIT')}>Modifier</button>
-        </div>
+        {!disableEdition && (
+          <div>
+            <button onClick={() => send('EDIT')}>Modifier</button>
+          </div>
+        )}
       </div>
       <Markdown text={description} />
     </React.Fragment>
   );
 };
 
-const CommentBlock = ({ comment, onChange, getUserName }) => {
+const CommentBlock = ({ comment, onChange, getUserName, disableEdition }) => {
   const inputRef = createRef();
   const [current, send] = useMachine(editableMachine, {
     actions: {
@@ -333,7 +337,7 @@ const CommentBlock = ({ comment, onChange, getUserName }) => {
             <button onClick={() => send('CANCEL')}>Annuler</button>
           </div>
         ) : (
-          <button onClick={() => send('EDIT')}>Modifier</button>
+          !disableEdition && <button onClick={() => send('EDIT')}>Modifier</button>
         )}
       </div>
       {current.value === 'editing' ? (
@@ -358,7 +362,6 @@ const Ticket = props => {
       removeFollower: context => Tickets.removeFollower(context.ticket, user),
       addComment: (context, event) => Tickets.addComment({ ticket: context.ticket, comment: event.comment }, user),
       updateComment: (context, event) => {
-        console.log('event', event);
         return Tickets.updateComment({ ticket: context.ticket, ...event.value }, user);
       },
       closeTicket: (context, event) => Tickets.closeTicket({ ticket: context.ticket, comment: event.comment }, user),
@@ -378,16 +381,19 @@ const Ticket = props => {
 
   const ticket = current.context.ticket;
   if (!ticket) {
-    console.error('No ticket!', ticketId);
     return null;
   }
-  console.log('ticket', ticket);
-  const { author, status, title, followers, description, comments = [], emailId } = ticket;
+
+  const { author, status, title, followers, description, comments = [], emailId, _history } = ticket;
 
   const commentRef = createRef();
   return (
     <Layout>
-      <TitleBlock title={title} onChange={value => send({ type: 'UPDATE_TITLE', value })} />
+      <TitleBlock
+        title={title}
+        onChange={value => send({ type: 'UPDATE_TITLE', value })}
+        disableEdition={ticket.status === 'CLOSED'}
+      />
       <div
         style={{
           display: 'flex',
@@ -418,24 +424,79 @@ const Ticket = props => {
         </div>
       </div>
       {description && (
-        <DescriptionBlock description={description} onChange={value => send({ type: 'UPDATE_DESCRIPTION', value })} />
+        <DescriptionBlock
+          description={description}
+          onChange={value => send({ type: 'UPDATE_DESCRIPTION', value })}
+          disableEdition={ticket.status === 'CLOSED'}
+        />
       )}
       {emailId && (
         <EmailBlock
           emailId={emailId}
           onResponse={responseText => send({ type: 'ADD_COMMENT', comment: 'Réponse envoyée: ' + responseText })}
+          disableEdition={ticket.status === 'CLOSED'}
         />
       )}
 
       <h2>Suivi</h2>
-      {comments.map(comment => (
-        <CommentBlock
-          key={comment.createAt}
-          comment={comment}
-          getUserName={Users.getFullname}
-          onChange={value => send({ type: 'UPDATE_COMMENT', value })}
-        />
-      ))}
+      {_history.map((h, key) => {
+        if (h.type === 'reopen-ticket') {
+          return (
+            <div
+              key={key}
+              style={{
+                border: '1px solid ' + colors.SKY_DARK,
+                padding: '1rem',
+                borderRadius: '5px',
+                marginBottom: '1rem',
+              }}
+            >
+              <div>
+                Le {moment(h.on).format('DD/MM/YYYY HH:mm:ss')} - Ré-ouverture du ticket par {Users.getFullname(h.by)}
+              </div>
+              {h.comment}
+            </div>
+          );
+        }
+        if (h.type === 'close-ticket') {
+          return (
+            <div
+              key={key}
+              style={{
+                border: '1px solid ' + colors.SKY_DARK,
+                padding: '1rem',
+                borderRadius: '5px',
+                marginBottom: '1rem',
+              }}
+            >
+              <div>
+                Le {moment(h.on).format('DD/MM/YYYY HH:mm:ss')} - Fermeture du ticket par {Users.getFullname(h.by)}
+              </div>
+              {h.comment}
+            </div>
+          );
+        }
+
+        if (h.type === 'add-comment') {
+          return (
+            <div
+              key={key}
+              style={{
+                border: '1px solid ' + colors.SKY_DARK,
+                padding: '1rem',
+                borderRadius: '5px',
+                marginBottom: '1rem',
+              }}
+            >
+              <div>
+                Le {moment(h.on).format('DD/MM/YYYY HH:mm:ss')} - Commentaire ajouté par {Users.getFullname(h.by)}
+              </div>
+              {h.value}
+            </div>
+          );
+        }
+        return <pre key={key}>{JSON.stringify(h, null, 2)}</pre>;
+      })}
 
       <div>
         <textarea rows={7} ref={commentRef}></textarea>

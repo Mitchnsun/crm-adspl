@@ -29,19 +29,39 @@ function AdspInfos({ infos, onSubmit }) {
             <button onClick={() => setIsEditing(false)}>Retour</button>
             <button
               onClick={() => {
-                const datas = {
-                  name: refs.name.current.value,
-                  email: refs.email.current.value,
-                  address: {
-                    name: refs.address.name.current.value,
-                    street: refs.address.street.current.value,
-                    cedex: refs.address.cedex.current.value,
-                    zipcode: refs.address.zipcode.current.value,
-                    city: refs.address.city.current.value,
-                    country: refs.address.country.current.value,
-                  },
-                };
+                const datas = {};
+                if (refs.name.current.value !== infos.name) {
+                  datas.name = refs.name.current.value;
+                }
+                if (refs.email.current.value !== infos.email) {
+                  datas.email = refs.email.current.value;
+                }
+                const address = {};
+                if (refs.address.name.current.value !== infos.address.name) {
+                  address.name = refs.address.name.current.value;
+                }
+                if (refs.address.street.current.value !== infos.address.street) {
+                  address.street = refs.address.street.current.value;
+                }
+                if (refs.address.cedex.current.value !== infos.address.cedex) {
+                  address.cedex = refs.address.cedex.current.value;
+                }
+                if (refs.address.zipcode.current.value !== infos.address.zipcode) {
+                  address.zipcode = refs.address.zipcode.current.value;
+                }
+                if (refs.address.city.current.value !== infos.address.city) {
+                  address.city = refs.address.city.current.value;
+                }
+                if (refs.address.country.current.value !== infos.address.country) {
+                  address.country = refs.address.country.current.value;
+                }
+
+                if (Object.keys(address).length > 0) {
+                  datas.address = address;
+                }
+
                 setIsEditing(false);
+                console.log('datas', datas);
                 onSubmit(datas);
               }}
             >
@@ -220,13 +240,14 @@ function Line({ item, date, name, renderSummary = () => null, renderDetails }) {
   );
 }
 
-function toJSX(item) {
+function toJSX(item, index) {
   if (!item) return null;
   switch (item.task) {
     case 'init': {
       if (item._version === 0) {
         return (
           <Line
+            key={index}
             item={item}
             date={item.date}
             name="Ajout de l'entreprise"
@@ -246,7 +267,7 @@ function toJSX(item) {
           />
         );
       }
-      return <Line item={item} date={item.date} name="Ajout de l'entreprise" renderSummary={() => <p />} />;
+      return <Line key={index} item={item} date={item.date} name="Ajout de l'entreprise" renderSummary={() => <p />} />;
     }
     case 'registration': {
       const {
@@ -255,6 +276,7 @@ function toJSX(item) {
       } = item;
       return (
         <Line
+          key={index}
           item={item}
           date={date}
           name={`Enregistrement de la cotisation ${cotisation}`}
@@ -284,6 +306,7 @@ function toJSX(item) {
         case 'init':
           return (
             <Line
+              key={index}
               item={item}
               date={date}
               name={`Paiment pour la cotisation ${cotisation}`}
@@ -294,6 +317,7 @@ function toJSX(item) {
         case 'end':
           return (
             <Line
+              key={index}
               item={item}
               date={date}
               name={`Paiment pour la cotisation ${cotisation}`}
@@ -309,6 +333,7 @@ function toJSX(item) {
         case 'notify':
           return (
             <Line
+              key={index}
               item={item}
               date={date}
               name={`Paiment pour la cotisation ${cotisation}`}
@@ -322,7 +347,7 @@ function toJSX(item) {
             />
           );
         default:
-          return <div>{JSON.stringify(item)}</div>;
+          return <div key={index}>{JSON.stringify(item)}</div>;
       }
     }
     case 'payment-sepa': {
@@ -338,6 +363,7 @@ function toJSX(item) {
         case 'ADD': {
           return (
             <Line
+              key={index}
               item={item}
               date={date}
               name={`Paiment pour la cotisation ${cotisation}`}
@@ -349,6 +375,7 @@ function toJSX(item) {
         case 'COMPLETE': {
           return (
             <Line
+              key={index}
               item={item}
               date={date}
               name={`Paiment pour la cotisation ${cotisation}`}
@@ -360,6 +387,7 @@ function toJSX(item) {
         case 'PAY': {
           return (
             <Line
+              key={index}
               item={item}
               date={date}
               name={`Paiment pour la cotisation ${cotisation}`}
@@ -373,6 +401,7 @@ function toJSX(item) {
         case 'NOTIFY': {
           return (
             <Line
+              key={index}
               item={item}
               date={date}
               name={`Paiment pour la cotisation ${cotisation}`}
@@ -391,7 +420,7 @@ function toJSX(item) {
           );
         }
         default:
-          return <div>{JSON.stringify(item)}</div>;
+          return <div key={index}>{JSON.stringify(item)}</div>;
       }
     }
     case 'payment-check': {
@@ -401,6 +430,7 @@ function toJSX(item) {
       } = item;
       return (
         <Line
+          key={index}
           item={item}
           date={date}
           name={`Paiment pour la cotisation ${cotisation}: `}
@@ -410,9 +440,9 @@ function toJSX(item) {
     }
     default:
       if (item.date && item.task) {
-        return <Line item={item} date={item.date} name={item.task} />;
+        return <Line key={index} item={item} date={item.date} name={item.task} />;
       }
-      return <div>{JSON.stringify(item)}</div>;
+      return <div key={index}>{JSON.stringify(item)}</div>;
   }
 }
 
