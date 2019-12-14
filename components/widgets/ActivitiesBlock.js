@@ -61,7 +61,8 @@ function getLabel(activity, scope) {
         return 'Mise à jour des informations du siret: ';
       case 'check-entry':
         return 'Saisie de chèque pour ';
-
+      case 'delete-account':
+        return 'Suppression du compte: ' + activity.input.email;
       default:
         return activity.task;
     }
