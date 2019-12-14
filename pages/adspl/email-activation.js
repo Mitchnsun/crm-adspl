@@ -1,35 +1,47 @@
-import { useContext, useState } from 'react';
-import { AdsplMenu } from '../../components/molecules/AdsplMenu';
+import { useContext, createRef, useState } from 'react';
 import Layout from '../../components/organismes/Layout';
+import { AdsplMenu } from '../../components/molecules/AdsplMenu';
 import DomainsContext from '../../utils/DomainsContext';
 import UserContext from '../../utils/UserContext';
 
-export default function extract() {
+export default function emailActivation() {
   const { Adspl } = useContext(DomainsContext);
   const user = useContext(UserContext);
-  const [year, setYear] = useState('2018');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const idRef = createRef();
+  const emailRef = createRef();
+
   return (
     <Layout>
       <AdsplMenu />
 
       <br />
-      <div className="radio">
-        <input type="radio" name="year" value="2018" checked={year === '2018'} onClick={() => setYear('2018')} />
-        <label>2018</label>
-      </div>
-      <div className="radio">
-        <input type="radio" name="year" value="2019" checked={year === '2019'} onClick={() => setYear('2019')} />
-        <label>2019</label>
-      </div>
+      <table>
+        <tbody>
+          <tr>
+            <td>Siret/Siren</td>
+            <td>
+              <input ref={idRef} type="text" />
+            </td>
+          </tr>
+          <tr>
+            <td>Email</td>
+            <td>
+              <input ref={emailRef} type="text" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
       <br />
+
       <button
         disabled={loading}
         onClick={() => {
           setLoading(true);
-          setError(false);
-          Adspl.downloadExtract(year, user)
+          const id = idRef.current.value;
+          const email = emailRef.current.value;
+          Adspl.activateEmail(id, email, user)
             .then(() => {
               setLoading(false);
               setError(false);
@@ -40,13 +52,13 @@ export default function extract() {
             });
         }}
       >
-        Extraire les données sous format CSV
+        Activer l'email
       </button>
       {loading && <label>En cours...</label>}
       {error && <label>Une erreur est survenue</label>}
       <style jsx>{`
         input {
-          margin-right: 0.5em;
+          margin-left: 0.5em;
         }
       `}</style>
     </Layout>

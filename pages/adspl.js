@@ -15,6 +15,7 @@ const machine = Machine({
   initial: 'idle',
   context: {
     data: null,
+    tickets: null,
     error: null,
   },
   states: {
@@ -32,7 +33,8 @@ const machine = Machine({
         onDone: {
           target: 'success',
           actions: assign({
-            data: (_, event) => event.data,
+            data: (_, event) => event.data[0],
+            tickets: (_, event) => event.data[1],
           }),
         },
         onError: {
@@ -63,14 +65,15 @@ const machine = Machine({
 });
 
 export default function adspl() {
-  const { Adspl } = useContext(DomainsContext);
+  const { Adspl, Tickets } = useContext(DomainsContext);
   const user = useContext(UserContext);
   const router = useRouter();
   const { id } = router.query;
 
   const [current, send] = useMachine(machine, {
     services: {
-      fetchData: (context, event) => Adspl.getDetails(event.id, user),
+      fetchData: (context, event) =>
+        Promise.all([Adspl.getDetails(event.id, user), Tickets.getAll({ scope: 'adspl' })]),
     },
     guards: {
       searchValid: (context, event) => Adspl.validateId(event.id),
@@ -109,7 +112,9 @@ export default function adspl() {
       {render(current, {
         searching: () => <p>Chargement...</p>,
         success: () => {
-          if (current.context.data) return <AdsplOverview data={current.context.data} />;
+          if (current.context.data) {
+            return <AdsplOverview data={current.context.data} tickets={current.context.tickets} />;
+          }
           return 'Pas de données';
         },
         failure: () => <p>{current.context.error}</p>,

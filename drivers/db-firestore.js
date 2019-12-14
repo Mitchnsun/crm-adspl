@@ -45,6 +45,10 @@ export default function createDb() {
           if (paginationConfig.status) {
             query = query.where('status', '==', paginationConfig.status);
           }
+
+          if (paginationConfig.scope) {
+            query = query.where('scope', '==', paginationConfig.scope);
+          }
         }
 
         query = query.orderBy('createAt', 'desc');

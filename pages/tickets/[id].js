@@ -11,6 +11,7 @@ import { useMachine } from '@xstate/react';
 import colors from '../../styles/colors';
 import { EmailBlock } from '../../components/widgets/EmailBlock';
 import DomainsContext from '../../utils/DomainsContext';
+import Link from '../../components/atoms/Link';
 
 const machine = Machine(
   {
@@ -383,8 +384,7 @@ const Ticket = props => {
   if (!ticket) {
     return null;
   }
-
-  const { author, status, title, followers, description, comments = [], emailId, _history } = ticket;
+  const { author, status, scope, title, followers, description, adsplId, comments = [], emailId, _history } = ticket;
 
   const commentRef = createRef();
   return (
@@ -408,6 +408,12 @@ const Ticket = props => {
 
           <p>Auteur: {author}</p>
           <p>Statut: {status}</p>
+          <p>Scope: {scope}</p>
+          {scope === 'adspl' && (
+            <p>
+              Siret/Siren: <Link url={`/adspl?id=${adsplId}`}>{adsplId}</Link>
+            </p>
+          )}
         </div>
         <div>
           {Tickets.followedBy(ticket, user) ? (
@@ -495,6 +501,42 @@ const Ticket = props => {
             </div>
           );
         }
+
+        if (h.type === 'add-follower') {
+          return (
+            <div
+              key={key}
+              style={{
+                border: '1px solid ' + colors.SKY_DARK,
+                padding: '1rem',
+                borderRadius: '5px',
+                marginBottom: '1rem',
+              }}
+            >
+              <div>
+                Le {moment(h.on).format('DD/MM/YYYY HH:mm:ss')} - Ticket suivi par {Users.getFullname(h.value)}
+              </div>
+            </div>
+          );
+        }
+        if (h.type === 'remove-follower') {
+          return (
+            <div
+              key={key}
+              style={{
+                border: '1px solid ' + colors.SKY_DARK,
+                padding: '1rem',
+                borderRadius: '5px',
+                marginBottom: '1rem',
+              }}
+            >
+              <div>
+                Le {moment(h.on).format('DD/MM/YYYY HH:mm:ss')} - Ticket abandonnée par {Users.getFullname(h.value)}
+              </div>
+            </div>
+          );
+        }
+
         return <pre key={key}>{JSON.stringify(h, null, 2)}</pre>;
       })}
 

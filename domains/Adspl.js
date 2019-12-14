@@ -12,5 +12,11 @@ export default function createAdspl(drivers) {
     downloadExtract(year, user) {
       return drivers.adspl.downloadExtract(year, user);
     },
+    activateEmail(id, email, user) {
+      return drivers.adspl.activateEmail(id, email, user);
+    },
+    checkEntry(params, user) {
+      return drivers.adspl.checkEntry(params, user);
+    },
   };
 }

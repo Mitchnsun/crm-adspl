@@ -134,6 +134,7 @@ app.get('/googlea878fa7e95ce857c.html', (req, res) => {
   fs.createReadStream('./googlea878fa7e95ce857c.html').pipe(res);
 });
 
+const { downloadExtract } = require('./adspl.extract');
 app.get('/adspl/extract/:year', validateFirebaseIdToken, checkUser(['admin']), (req, res) => {
   const { year } = req.params;
 
@@ -144,12 +145,42 @@ app.get('/adspl/extract/:year', validateFirebaseIdToken, checkUser(['admin']), (
 
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/csv');
-  adspl.downloadExtract(year, data => res.write(data), () => res.end());
+  downloadExtract(year, data => res.write(data), () => res.end(), () => res.status(500).send());
 });
 
 app.get('/adspl/details/:id', validateFirebaseIdToken, checkUser(['admin', 'agent']), async (req, res) => {
   const data = await adspl.getById(req.params.id);
   res.json(data);
+});
+
+app.post('/adspl/check-entry', validateFirebaseIdToken, checkUser(['admin', 'agent']), (req, res) => {
+  const body = JSON.parse(req.body);
+  adspl
+    .checkEntry(body, req.user.uid)
+    .then(() => {
+      res.send('');
+    })
+    .catch(() => {
+      res.status(500).send('');
+    });
+});
+
+const { updateVerifiedEmail } = require('./users');
+app.post('/adspl/activate-email', validateFirebaseIdToken, checkUser(['admin', 'agent']), (req, res) => {
+  const { id, email } = JSON.parse(req.body);
+  updateVerifiedEmail(
+    {
+      userEmail: email,
+      userSiren: id,
+    },
+    req.user.uid,
+  )
+    .then(() => {
+      res.send('');
+    })
+    .catch(() => {
+      res.status(500).send('');
+    });
 });
 
 app.post('/adspl/infos/:id', validateFirebaseIdToken, checkUser(['admin', 'agent']), async (req, res) => {

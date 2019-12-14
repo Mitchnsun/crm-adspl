@@ -1,9 +1,10 @@
 import { useState, createRef, useContext } from 'react';
-import { get } from 'lodash';
+import { get, omit } from 'lodash';
 import moment from 'moment';
 import colors from '../../styles/colors';
 import UserContext from '../../utils/UserContext';
 import DomainsContext from '../../utils/DomainsContext';
+import Link from '../atoms/Link';
 
 function AdspInfos({ infos, onSubmit }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -165,8 +166,7 @@ function AdspInfos({ infos, onSubmit }) {
     </div>
   );
 }
-function Line({ item, date, name, renderSummary = () => null, renderDetails }) {
-  const [openDetails, setOpenDetails] = useState(false);
+function Line({ item, date, name, renderSummary = () => null }) {
   const [openRaw, setOpenRaw] = useState(false);
   return (
     <div
@@ -178,7 +178,7 @@ function Line({ item, date, name, renderSummary = () => null, renderDetails }) {
         style={{
           display: 'flex',
           border: `1px solid ${colors.SKY_DARK}`,
-          borderRadius: openDetails || openRaw ? 0 : '5px',
+          borderRadius: openRaw ? 0 : '5px',
           alignItems: 'center',
         }}
       >
@@ -188,13 +188,6 @@ function Line({ item, date, name, renderSummary = () => null, renderDetails }) {
         <div style={{ marginRight: '1rem', fontWeight: 'bold', color: colors.SKY_DARK }}>{name}</div>
         <div style={{ flex: 1, marginRight: '1rem' }}>{renderSummary()}</div>
         <div>
-          {item.generate && <span className="generated">Généré</span>}
-          {renderDetails && (
-            <button className={openDetails ? 'open' : ''} onClick={() => setOpenDetails(!openDetails)}>
-              Détails
-            </button>
-          )}
-
           <button className={openRaw ? 'open' : ''} onClick={() => setOpenRaw(!openRaw)}>
             JSON
           </button>
@@ -221,7 +214,7 @@ function Line({ item, date, name, renderSummary = () => null, renderDetails }) {
           `}</style>
         </div>
       </div>
-      {(openDetails || openRaw) && (
+      {openRaw && (
         <div
           style={{
             borderBottom: `1px solid ${colors.SKY_DARK}`,
@@ -232,10 +225,110 @@ function Line({ item, date, name, renderSummary = () => null, renderDetails }) {
             padding: '1rem',
           }}
         >
-          {openDetails ? renderDetails() : null}
           {openRaw ? <pre style={{ margin: 0 }}>{JSON.stringify(item, null, 2)}</pre> : null}
         </div>
       )}
+    </div>
+  );
+}
+
+/*
+adsplId: "82788226700020"
+author: "nick fury"
+createAt: 1576277007379
+createBy: "B5KE2ddf47eQdHAcSa5A64ujOh02"
+description: "test adspl"
+followers: []
+id: "xghy2Su1svwqQJhBuoOe"
+idNum: 39
+scope: "adspl"
+status: "PENDING"
+title: "hello"
+ */
+
+function toTicket(ticket) {
+  const [openRaw, setOpenRaw] = useState(false);
+  return (
+    <div
+      style={{
+        marginBottom: '0.5rem',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          border: `1px solid ${colors.SKY_DARK}`,
+          borderRadius: openRaw ? 0 : '5px',
+          alignItems: 'center',
+        }}
+      >
+        <div style={{ marginRight: '1rem', backgroundColor: colors.SKY_DARK, color: 'white', padding: '0.5rem 1rem' }}>
+          {moment(ticket.createAt).format('DD/MM/YYYY HH:mm:ss')}
+        </div>
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <label>
+              Ticket: <Link url={`/tickets/${ticket.id}`}>{ticket.id}</Link>
+            </label>
+            <span
+              style={{
+                border: `1px solid ${colors.SKY_DARK}`,
+                borderRadius: '5px',
+                color: 'white',
+                backgroundColor: colors.SKY_DARK,
+                padding: '2px 6px',
+              }}
+            >
+              {ticket.status}
+            </span>
+          </div>
+
+          <button className={openRaw ? 'open' : ''} onClick={() => setOpenRaw(!openRaw)}>
+            JSON
+          </button>
+        </div>
+      </div>
+      {openRaw && (
+        <div
+          style={{
+            borderBottom: `1px solid ${colors.SKY_DARK}`,
+            borderLeft: `1px solid ${colors.SKY_DARK}`,
+            borderRight: `1px solid ${colors.SKY_DARK}`,
+
+            //borderRadius: openDetails || openRaw ? '5px' : 0,
+            padding: '1rem',
+          }}
+        >
+          {openRaw ? <pre style={{ margin: 0 }}>{JSON.stringify(omit(ticket, ['_doc']), null, 2)}</pre> : null}
+        </div>
+      )}
+      <style jsx>{`
+            label {
+              margin-right: 1em;
+            }
+            button {
+              border: 1px solid ${colors.SKY_DARK};
+              border-radius: 5px;
+              cursor: pointer;
+              margin-right 5px;
+            }
+            button.open {
+              color: white;
+              background-color: ${colors.SKY_DARK};
+            }
+          `}</style>
     </div>
   );
 }
@@ -450,7 +543,7 @@ function toJSX(item, index) {
   }
 }
 
-export function AdsplOverview({ data }) {
+export function AdsplOverview({ data, tickets }) {
   const user = useContext(UserContext);
   const { Adspl } = useContext(DomainsContext);
   return (
@@ -460,7 +553,7 @@ export function AdsplOverview({ data }) {
           <h2>Détails</h2>
           <div style={{ display: 'flex' }}>
             <div style={{ flex: 1 }}>
-              {data.insee.NOMEN_LONG}
+              {data.name}
               <div>Siret: {data.siret || 'Non renseigné'}</div>
               <div>Siren: {data.siren}</div>
               <div>Email: {data.email || 'Non renseigné'} </div>
@@ -491,6 +584,12 @@ export function AdsplOverview({ data }) {
           <h2>Historique</h2>
           <div>{data._history.map(toJSX)}</div>
         </div>
+        {(tickets || []).length > 0 && (
+          <div className="tickets">
+            <h2>Tickets associés</h2>
+            <div>{(tickets || []).map(toTicket)}</div>
+          </div>
+        )}
       </div>
       <style jsx>{`
         .cotisation-line {

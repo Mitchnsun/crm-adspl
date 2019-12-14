@@ -12,6 +12,12 @@ export function AdsplMenu() {
       <Link href="/adspl">
         <button className={router.pathname === '/adspl' ? 'active' : ''}>Recherche</button>
       </Link>
+      <Link href="/adspl/email-activation">
+        <button className={router.pathname === '/adspl/email-activation' ? 'active' : ''}>Activation d'email</button>
+      </Link>
+      <Link href="/adspl/check-entry">
+        <button className={router.pathname === '/adspl/check-entry' ? 'active' : ''}>Saisie de chèque</button>
+      </Link>
       {user.isAdmin() && (
         <Link href="/adspl/extract">
           <button className={router.pathname === '/adspl/extract' ? 'active' : ''}>Extraction</button>

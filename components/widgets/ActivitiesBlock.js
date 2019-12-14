@@ -59,6 +59,8 @@ function getLabel(activity, scope) {
     switch (activity.task) {
       case 'infos-update':
         return 'Mise à jour des informations du siret: ';
+      case 'check-entry':
+        return 'Saisie de chèque pour ';
 
       default:
         return activity.task;
