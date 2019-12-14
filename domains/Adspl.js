@@ -15,6 +15,9 @@ export default function createAdspl(drivers) {
     activateEmail(id, email, user) {
       return drivers.adspl.activateEmail(id, email, user);
     },
+    deleteAccount(email, user) {
+      return drivers.adspl.deleteAccount(email, user);
+    },
     checkEntry(params, user) {
       return drivers.adspl.checkEntry(params, user);
     },

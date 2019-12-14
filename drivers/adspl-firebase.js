@@ -44,6 +44,27 @@ export default function createAdspl() {
           });
       });
     },
+    deleteAccount(email, user) {
+      return user._authUser.getIdToken(true).then(function(idToken) {
+        return fetch(process.env.CRM_API_URL + '/adspl/delete-account', {
+          headers: {
+            authorization: `Bearer ${idToken}`,
+          },
+          method: 'POST',
+          body: JSON.stringify({ email }),
+        })
+          .then(res => {
+            if (res.ok) {
+              return res.text();
+            }
+            throw new Error(res.statusText);
+          })
+          .catch(err => {
+            console.error(err);
+            throw err;
+          });
+      });
+    },
     downloadExtract(year, user) {
       return user._authUser.getIdToken(true).then(function(idToken) {
         return fetch(process.env.CRM_API_URL + '/adspl/extract/' + year, {

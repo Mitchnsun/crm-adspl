@@ -18,6 +18,9 @@ export function AdsplMenu() {
       <Link href="/adspl/check-entry">
         <button className={router.pathname === '/adspl/check-entry' ? 'active' : ''}>Saisie de chèque</button>
       </Link>
+      <Link href="/adspl/delete-account">
+        <button className={router.pathname === '/adspl/delete-account' ? 'active' : ''}>Suppression de compte</button>
+      </Link>
       {user.isAdmin() && (
         <Link href="/adspl/extract">
           <button className={router.pathname === '/adspl/extract' ? 'active' : ''}>Extraction</button>

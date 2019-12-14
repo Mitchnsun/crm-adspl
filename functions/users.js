@@ -36,3 +36,37 @@ exports.updateVerifiedEmail = ({ userEmail, userSiren }, userId) => {
         }),
     );
 };
+
+exports.deleteAccount = ({ email }, agentId) => {
+  return adspl
+    .auth()
+    .getUserByEmail(email)
+    .then(function(userRecord) {
+      const user = userRecord.toJSON();
+
+      const date = new Date().toISOString();
+      return adspl
+        .auth()
+        .deleteUser(user.uid)
+        .then(() => {
+          return crm
+            .database()
+            .ref('/activities/' + agentId + '/' + moment().format('DD_MM_YYYY'))
+            .push({
+              scope: 'adspl',
+              date,
+              task: 'delete-account',
+              input: { email },
+            })
+            .then(() => {
+              return adspl
+                .database()
+                .ref('/users/' + user.uid + '/accountRemoved')
+                .set({
+                  date,
+                  by: agentId,
+                });
+            });
+        });
+    });
+};

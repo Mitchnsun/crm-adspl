@@ -26,6 +26,7 @@ module.exports = crm => {
                   _archived: false,
                   idNum: newCount,
                   createAt: Date.now(),
+                  scope: 'adspl',
                   createBy: 'EMAIL',
                   author: 'GMAIL',
                   fromContact: email.payload.headers.find(h => h.name.toLowerCase() === 'from').value,

@@ -160,12 +160,13 @@ app.post('/adspl/check-entry', validateFirebaseIdToken, checkUser(['admin', 'age
     .then(() => {
       res.send('');
     })
-    .catch(() => {
+    .catch(err => {
+      console.error(err);
       res.status(500).send('');
     });
 });
 
-const { updateVerifiedEmail } = require('./users');
+const { updateVerifiedEmail, deleteAccount } = require('./users');
 app.post('/adspl/activate-email', validateFirebaseIdToken, checkUser(['admin', 'agent']), (req, res) => {
   const { id, email } = JSON.parse(req.body);
   updateVerifiedEmail(
@@ -178,7 +179,25 @@ app.post('/adspl/activate-email', validateFirebaseIdToken, checkUser(['admin', '
     .then(() => {
       res.send('');
     })
-    .catch(() => {
+    .catch(err => {
+      console.error(err);
+      res.status(500).send('');
+    });
+});
+
+app.post('/adspl/delete-account', validateFirebaseIdToken, checkUser(['admin', 'agent']), (req, res) => {
+  const { email } = JSON.parse(req.body);
+  deleteAccount(
+    {
+      email,
+    },
+    req.user.uid,
+  )
+    .then(() => {
+      res.send('');
+    })
+    .catch(err => {
+      console.error(err);
       res.status(500).send('');
     });
 });
