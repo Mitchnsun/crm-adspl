@@ -49,6 +49,10 @@ export default function createDb() {
           if (paginationConfig.scope) {
             query = query.where('scope', '==', paginationConfig.scope);
           }
+
+          if (paginationConfig.adsplId) {
+            query = query.where('adsplId', '==', paginationConfig.adsplId);
+          }
         }
 
         query = query.orderBy('createAt', 'desc');

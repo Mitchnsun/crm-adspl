@@ -73,7 +73,7 @@ export default function adspl() {
   const [current, send] = useMachine(machine, {
     services: {
       fetchData: (context, event) =>
-        Promise.all([Adspl.getDetails(event.id, user), Tickets.getAll({ scope: 'adspl' })]),
+        Promise.all([Adspl.getDetails(event.id, user), Tickets.getAll({ scope: 'adspl', adsplId: event.id })]),
     },
     guards: {
       searchValid: (context, event) => Adspl.validateId(event.id),
