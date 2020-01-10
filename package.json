@@ -16,8 +16,7 @@
   "license": "All reserved right",
   "engines": {
     "node": "10.16.*",
-    "npm": "6.9.*",
-    "yarn": "1.16.*"
+    "npm": "6.9.*"
   },
   "homepage": "https://github.com/Mitchnsun/crm-adspl#readme",
   "scripts": {
@@ -33,22 +32,39 @@
     }
   },
   "dependencies": {
+    "@xstate/react": "^0.7.0",
+    "dompurify": "^2.0.3",
+    "dotenv": "^8.0.0",
+    "dotenv-webpack": "^1.7.0",
+    "downloadjs": "^1.4.7",
     "express": "^4.17.1",
+    "firebase": "^6.3.3",
     "isomorphic-unfetch": "^3.0.0",
-    "next": "^8.1.0",
+    "lodash": "^4.17.15",
+    "marked": "^0.7.0",
+    "moment": "^2.24.0",
+    "next": "9.0.5",
+    "node-fetch": "^2.6.0",
+    "now": "^16.1.2",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.8.6",
+    "xstate": "^4.6.7"
   },
   "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "babel-jest": "^24.8.0",
     "eslint": "^6.0.1",
     "eslint-config-prettier": "^6.0.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.18.0",
+    "eslint-plugin-jest": "^22.14.0",
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.14.2",
     "eslint-plugin-standard": "^4.0.0",
     "husky": "^3.0.0",
+    "jest": "^24.8.0",
     "prettier": "1.18.2",
     "pretty-quick": "^1.11.1"
   }

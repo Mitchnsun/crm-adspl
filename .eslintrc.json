@@ -1,7 +1,8 @@
 {
   "env": {
     "browser": true,
-    "es6": true
+    "es6": true,
+    "jest": true
   },
   "extends": ["standard", "prettier"],
   "globals": {
@@ -20,7 +21,13 @@
     "semi": ["error", "always"],
     "space-before-function-paren": ["error", "never"],
     "import/prefer-default-export": 2,
-    "react/jsx-wrap-multilines": ["error", { "declaration": false, "assignment": false }],
+    "react/jsx-wrap-multilines": [
+      "error",
+      {
+        "declaration": false,
+        "assignment": false
+      }
+    ],
     "react/jsx-uses-vars": 2
   }
 }

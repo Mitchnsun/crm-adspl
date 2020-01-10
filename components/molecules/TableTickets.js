@@ -1,6 +1,10 @@
-import Link from '../frameworks/Link';
-import StatusChip from '../frameworks/StatusChip';
-import colors from '../styles/colors';
+import Link from '../atoms/Link';
+import StatusChip from '../atoms/StatusChip';
+import colors from '../../styles/colors';
+
+function mapGmail(text) {
+  return text;
+}
 
 const TicketLink = ({ ticket }) => (
   <tr>
@@ -8,11 +12,9 @@ const TicketLink = ({ ticket }) => (
       <StatusChip status={ticket.status} />
     </td>
     <td>
-      <Link as={`/t/${ticket.id}`} url={`/ticket?title=${ticket.title}`}>
-        {ticket.title}
-      </Link>
+      <Link url={`/tickets/${ticket.id}`}>{ticket.author !== 'GMAIL' ? ticket.title : mapGmail(ticket.title)}</Link>
     </td>
-    <td>{ticket.author}</td>
+    <td>{ticket.author === 'GMAIL' ? 'EMAIL' : ticket.author}</td>
     <style jsx>{`
       tr:hover {
         background-color: ${colors.SKY_LIGHT};

@@ -1,3 +1,14 @@
 node_modules
 .next
 .eslintcache
+.idea
+coverage
+.env
+credentials-adspl.json
+credentials-crm.json
+credentials-gmail.json
+.env-now
+env-config.json
+test-gmail.js
+token.json
+googlea878fa7e95ce857c.html

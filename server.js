@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const next = require('next');
 
@@ -9,17 +11,6 @@ app
   .prepare()
   .then(() => {
     const server = express();
-
-    server.get('/t/:id', (req, res) => {
-      const actualPage = '/ticket';
-      const queryParams = { id: req.params.id };
-      app.render(req, res, actualPage, queryParams);
-    });
-
-    server.get('/', (req, res) => {
-      const actualPage = '/dashboard';
-      app.render(req, res, actualPage);
-    });
 
     server.get('*', (req, res) => {
       return handle(req, res);

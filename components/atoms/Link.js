@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import colors from '../styles/colors';
+import colors from '../../styles/colors';
 
 export default function Linkup({ as, url, children }) {
   return (

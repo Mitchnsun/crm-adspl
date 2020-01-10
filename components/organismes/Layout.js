@@ -1,5 +1,5 @@
-import Header from './Header';
-import Normalize from '../styles/Normalize';
+import Header from '../molecules/Header';
+import Normalize from '../../styles/Normalize';
 
 const Layout = props => (
   <React.Fragment>
