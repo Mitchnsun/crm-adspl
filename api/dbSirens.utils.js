@@ -307,3 +307,38 @@ exports.createMapSiren = ({ getCurrentCotisation, getPreviousCotisation }) =>
       cotisations: getCotisations(year, get(dbSiren, `cotisations`, {}), personalData),
     };
   };
+
+/**
+ *
+ * @param dbSiren the db result of siren request
+ * @param personalData {{ email: boolean }} list of personal field required
+ * @returns {{ siren: string, enterprise: { name: string }, cotisation: { status: string, amount: string, numberOfEmployees: string } }}
+ */
+exports.mapSiret = (year, dbSiret, personalData = {}, users) => {
+  if (!dbSiret) {
+    return null;
+  }
+
+  const cotisation = get(dbSiret, `cotisations.${year}`, {});
+
+  return {
+    siret: get(dbSiret, 'siret'),
+    siren: get(dbSiret, 'siren'),
+    enterprise: {
+      name: get(dbSiret, 'infos.name'),
+    },
+    cotisation: {
+      year,
+      status: getCotisationStatus(cotisation),
+      amount: get(cotisation, 'REGISTRATION.amount'),
+      payroll: get(cotisation, 'REGISTRATION.payroll'),
+      numberOfEmployees: get(cotisation, 'REGISTRATION.numberOfEmployees'),
+      email: personalData.email ? get(cotisation, 'REGISTRATION.email') : undefined,
+      accountant: get(cotisation, 'REGISTRATION.accountant'),
+      accountantSiren: get(cotisation, 'REGISTRATION.accountant')
+        ? get(users, `${get(cotisation, 'REGISTRATION.accountant')}.siren`)
+        : '',
+      payment: getPayment(cotisation),
+    },
+  };
+};
