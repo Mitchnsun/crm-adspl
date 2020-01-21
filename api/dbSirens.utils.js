@@ -314,7 +314,7 @@ exports.createMapSiren = ({ getCurrentCotisation, getPreviousCotisation }) =>
  * @param personalData {{ email: boolean }} list of personal field required
  * @returns {{ siren: string, enterprise: { name: string }, cotisation: { status: string, amount: string, numberOfEmployees: string } }}
  */
-exports.mapSiret = (year, dbSiret, personalData = {}, users) => {
+exports.mapSiret = (siret, year, dbSiret, personalData = {}, users) => {
   if (!dbSiret) {
     return null;
   }
@@ -322,7 +322,7 @@ exports.mapSiret = (year, dbSiret, personalData = {}, users) => {
   const cotisation = get(dbSiret, `cotisations.${year}`, {});
 
   return {
-    siret: get(dbSiret, 'siret'),
+    siret: get(dbSiret, 'siret') || siret,
     siren: get(dbSiret, 'siren'),
     enterprise: {
       name: get(dbSiret, 'infos.name'),

@@ -245,7 +245,7 @@ app.post('/onEmail', async (req, res) => {
     console.log('received push email [historyId:' + historyId + ']');
     return res.status(204).send('');
   } catch (e) {
-    console.error(e);
+    console.error(e, req.body, req.query, req.headers);
     return res.status(500).send('');
   }
 });

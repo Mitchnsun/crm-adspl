@@ -138,8 +138,8 @@ function downloadExtract(year, onData, onEnd, onError) {
           return oboe({
             url: config.adsplDatabaseUrl + '/ids.json?access_token=' + token,
           })
-            .node('!.*', function(siret) {
-              const formattedValues = mapSiret(year, siret, { email: true }, users);
+            .node('!.*', function(siretDatas, siret) {
+              const formattedValues = mapSiret(siret, year, siretDatas, { email: true }, users);
               onData(toLine(formattedValues));
 
               // By returning oboe.drop, the parsed JSON object will be freed,
