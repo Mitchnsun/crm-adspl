@@ -1,6 +1,7 @@
 const fs = require('fs');
 const readline = require('readline');
 const { google } = require('googleapis');
+const { topicEmails } = require('./env-config.json');
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
@@ -74,8 +75,8 @@ function watchEmails(auth) {
     {
       userId: 'me',
       requestBody: {
-        labelIds: ['INBOX'],
-        topicName: 'projects/adspl-test-1571090735492/topics/adspl-emails',
+        labelIds: ['INBOX', 'UNREAD'],
+        topicName: topicEmails,
       },
     },
     (err, r) => {
