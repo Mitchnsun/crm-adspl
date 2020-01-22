@@ -127,6 +127,10 @@ app.get('/googlea878fa7e95ce857c.html', (req, res) => {
   fs.createReadStream('./googlea878fa7e95ce857c.html').pipe(res);
 });
 
+app.get('/google2ad894dd3053feaa.html', (req, res) => {
+  fs.createReadStream('./google2ad894dd3053feaa.html').pipe(res);
+});
+
 const { downloadExtract } = require('./adspl.extract');
 app.get('/adspl/extract/:year', validateFirebaseIdToken, checkUser(['admin']), (req, res) => {
   const { year } = req.params;

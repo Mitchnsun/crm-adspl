@@ -75,7 +75,7 @@ function watchEmails(auth) {
     {
       userId: 'me',
       requestBody: {
-        labelIds: ['INBOX', 'UNREAD'],
+        labelIds: ['INBOX'],
         topicName: topicEmails,
       },
     },
