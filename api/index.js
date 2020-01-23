@@ -18,6 +18,7 @@
 const fs = require('fs');
 const express = require('express');
 const cookieParser = require('cookie-parser')();
+
 const { crm } = require('./connections');
 
 const corsOptions = {
@@ -27,6 +28,9 @@ const corsOptions = {
 const cors = require('cors')(corsOptions);
 const app = express();
 const adspl = require('./adspl');
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // Express middleware that validates Firebase ID Tokens passed in the Authorization HTTP header.
 // The Firebase ID token needs to be passed as a Bearer token in the Authorization HTTP header like this:
@@ -96,35 +100,42 @@ app.get('/ping', (req, res) => {
 });
 
 app.post('/createAccount', async (req, res, next) => {
-  const { firstname, lastname, email, isActive, id, role } = JSON.parse(req.body);
+  try {
+    const { firstname, lastname, email, isActive, id, role } = req.body;
 
-  const user = await crm
-    .database()
-    .ref('users/' + id)
-    .once('value')
-    .then(snap => snap.val());
+    if (!id) {
+      console.error(typeof req.body, req.body);
+      res.status(400).send('Wrong id!');
+      return;
+    }
 
-  if (user) {
-    res.status(400).send('User allready exist!');
-    return;
+    const user = await crm
+      .database()
+      .ref('users/' + id)
+      .once('value')
+      .then(snap => snap.val());
+
+    if (user) {
+      res.status(400).send('User allready exist!');
+      return;
+    }
+    await crm
+      .database()
+      .ref('users/' + id)
+      .set({
+        firstname,
+        lastname,
+        email,
+        isActive,
+        id,
+        role,
+      });
+
+    res.status(204).send('');
+  } catch (e) {
+    console.error(e, typeof req.body, req.body);
+    res.status(500).send('');
   }
-  await crm
-    .database()
-    .ref('users/' + id)
-    .set({
-      firstname,
-      lastname,
-      email,
-      isActive,
-      id,
-      role,
-    });
-
-  res.status(204).send('');
-});
-
-app.get('/googlea878fa7e95ce857c.html', (req, res) => {
-  fs.createReadStream('./googlea878fa7e95ce857c.html').pipe(res);
 });
 
 app.get('/google2ad894dd3053feaa.html', (req, res) => {
@@ -233,22 +244,22 @@ app.post('/email', validateFirebaseIdToken, checkUser(['admin', 'agent']), async
 });
 
 const { onReceiveGmailEmail } = require('./crm')(crm);
+let inProgress = false;
 app.post('/onEmail', async (req, res) => {
+  if (inProgress) {
+    res.status(204).send('');
+    return;
+  }
+  inProgress = true;
   try {
-    const {
-      message: { data },
-    } = req.body;
-
-    const buff = Buffer.from(data, 'base64');
-    const text = buff.toString('ascii');
-    const { historyId } = JSON.parse(text);
-
-    if (!historyId) return res.status(500).send('');
-
-    await gmailApi.addNewTicket(historyId, onReceiveGmailEmail);
-    console.log('received push email [historyId:' + historyId + ']');
+    const more = await gmailApi.addNewTicket(onReceiveGmailEmail);
+    inProgress = false;
+    if (more) {
+      return res.status(449).send('');
+    }
     return res.status(204).send('');
   } catch (e) {
+    inProgress = false;
     console.error(e, req.body, req.query, req.headers);
     return res.status(500).send('');
   }

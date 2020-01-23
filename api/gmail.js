@@ -3,11 +3,8 @@ const fs = require('fs');
 const readline = require('readline');
 
 // If modifying these scopes, delete token.json.
-const SCOPES = [
-  'https://www.googleapis.com/auth/gmail.readonly',
-  'https://www.googleapis.com/auth/gmail.send',
-  'https://www.googleapis.com/auth/gmail.modify',
-];
+const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.modify'];
+
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
@@ -78,50 +75,44 @@ function getGmail() {
   });
 }
 
+const CRM_TICKET_CREATED = 'Label_136'; // Id on GMAIL
+
 module.exports = function() {
   return {
-    getMessageIds(historyId) {
+    getMessageIds() {
       return getGmail().then(gmail => {
-        /*
-        // Méthode qui devrait fonctionner mais qui ne remonte pas les messages ID...
-        return gmail.users.history
-          .list({
-            userId: 'me',
-            startHistoryId: historyId,
-          })
-          .then(result => {
-            return (result.data.history || []).reduce((acc, hist) => {
-              return acc.concat((hist.messagesAdded || []).map(({ message }) => message.id).filter(Boolean));
-            }, []);
-          });
-         */
         return gmail.users.messages
           .list({
             userId: 'me',
             q: '',
             labelIds: ['INBOX', 'UNREAD'],
+            maxResults: 5,
           })
           .then(value => {
             return (value.data.messages || []).map(m => m.id);
           });
       });
     },
-    async addNewTicket(historyId, onReceiveGmailEmail) {
-      const messageIds = await this.getMessageIds(historyId);
-      return Promise.all(
-        messageIds.map(id =>
-          this.getById(id)
-            .then(r => onReceiveGmailEmail(r.data))
-            .then(() => this.removeReadLabel(id)),
-        ),
-      );
+    async createBatches(messageIds, onReceiveGmailEmail, updateLabels, getById, currentlabelId) {
+      await updateLabels(messageIds, currentlabelId);
+      for (const id of messageIds) {
+        const response = await getById(id);
+        await onReceiveGmailEmail(response.data, currentlabelId);
+      }
     },
-    removeReadLabel(messageId) {
+    async addNewTicket(onReceiveGmailEmail) {
+      const messageIds = await this.getMessageIds();
+      if (messageIds.length === 0) return false;
+      await this.createBatches(messageIds, onReceiveGmailEmail, this.updateLabels, this.getById);
+      return true;
+    },
+    updateLabels(ids, currentlabelId) {
       return getGmail().then(gmail =>
-        gmail.users.messages.modify({
+        gmail.users.messages.batchModify({
           userId: 'me',
-          id: messageId,
           requestBody: {
+            ids,
+            addLabelIds: [CRM_TICKET_CREATED, currentlabelId],
             removeLabelIds: ['UNREAD'],
           },
         }),

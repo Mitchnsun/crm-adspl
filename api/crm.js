@@ -39,11 +39,8 @@ module.exports = crm => {
                   followers: [],
                   _history: [],
                 })
-                .then(function(docRef) {
-                  console.log('Document written with ID: ', docRef.id);
-                })
                 .catch(function(error) {
-                  console.error('Error adding document: ', error);
+                  console.error('Error adding document: ', error, JSON.stringify(email || {}));
                 });
             });
         });
