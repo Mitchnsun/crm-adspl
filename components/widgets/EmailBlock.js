@@ -104,24 +104,24 @@ export function EmailBlock({ emailId, onResponse, disableEdition }) {
 
   if (current.context.email) {
     try {
+      const contentHtml = current.context.email.data.payload.parts.find(p => p.mimeType === 'text/html');
+      const contentText = contentHtml
+        ? null
+        : current.context.email.data.payload.parts.find(p => p.mimeType === 'text/plain');
       return (
         <div>
           <h2>Email reçu</h2>
-          <div
-            style={{ pointerEvents: 'none' }}
-            dangerouslySetInnerHTML={{
-              __html: decodeURIComponent(
-                escape(
-                  atob(
-                    current.context.email.data.payload.parts
-                      .find(p => p.mimeType === 'text/html')
-                      .body.data.replace(/-/g, '+')
-                      .replace(/_/g, '/'),
-                  ),
-                ),
-              ),
-            }}
-          />
+          {contentHtml && (
+            <div
+              style={{ pointerEvents: 'none' }}
+              dangerouslySetInnerHTML={{
+                __html: decodeURIComponent(escape(atob(contentHtml.body.data.replace(/-/g, '+').replace(/_/g, '/')))),
+              }}
+            />
+          )}
+          {contentText && (
+            <pre>{decodeURIComponent(escape(atob(contentText.body.data.replace(/-/g, '+').replace(/_/g, '/'))))}</pre>
+          )}
           <br />
           {!disableEdition && (
             <Answer
