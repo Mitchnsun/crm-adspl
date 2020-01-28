@@ -103,13 +103,36 @@ function reducer(state, h) {
       }
       break;
     }
-    case 'payment-check': {
+    case 'payment-check-print': {
       if (!newState.cotisations[h.input.cotisation]) {
         newState.cotisations[h.input.cotisation] = {};
       }
       const o = newState.cotisations[h.input.cotisation];
       set(o, `payments.check`, {
         date: h.date,
+        status: 'PRINT',
+      });
+      break;
+    }
+    case 'payment-check-printed': {
+      if (!newState.cotisations[h.input.cotisation]) {
+        newState.cotisations[h.input.cotisation] = {};
+      }
+      const o = newState.cotisations[h.input.cotisation];
+      set(o, `payments.check`, {
+        date: h.date,
+        status: 'PRINTED',
+      });
+      break;
+    }
+    case 'payment-check-paid': {
+      if (!newState.cotisations[h.input.cotisation]) {
+        newState.cotisations[h.input.cotisation] = {};
+      }
+      const o = newState.cotisations[h.input.cotisation];
+      set(o, `payments.check`, {
+        date: h.date,
+        status: 'PAID',
       });
       break;
     }
@@ -224,7 +247,30 @@ function createHistoryFromCotisation(raw) {
     }
     const check = get(cotisation, 'PAYMENT.CHECK');
     if (check) {
-      history.push({ task: 'payment-check', input: { ...check, cotisation: c }, date: check.date, generate: true });
+      if (check.PRINT) {
+        history.push({
+          task: 'payment-check-print',
+          input: { ...check, cotisation: c },
+          date: check.date,
+          generate: true,
+        });
+      }
+      if (check.PRINTED) {
+        history.push({
+          task: 'payment-check-printed',
+          input: { ...check, cotisation: c },
+          date: check.date,
+          generate: true,
+        });
+      }
+      if (check.PAID) {
+        history.push({
+          task: 'payment-check-paid',
+          input: { ...check, cotisation: c },
+          date: check.date,
+          generate: true,
+        });
+      }
     }
 
     const sepa = get(cotisation, 'PAYMENT.SEPA');

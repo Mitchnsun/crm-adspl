@@ -40,6 +40,9 @@ export default function createSession(drivers) {
         };
         return fetch(process.env.CRM_API_URL + '/createAccount', {
           method: 'post',
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify(data),
         });
       });

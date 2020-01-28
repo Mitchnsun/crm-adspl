@@ -1,5 +1,6 @@
 import { useContext, useEffect, createRef } from 'react';
 import { assign, Machine } from 'xstate';
+import { get } from 'lodash';
 import { useMachine } from '@xstate/react';
 import UserContext from '../../utils/UserContext';
 import DomainsContext from '../../utils/DomainsContext';
@@ -104,10 +105,18 @@ export function EmailBlock({ emailId, onResponse, disableEdition }) {
 
   if (current.context.email) {
     try {
-      const contentHtml = current.context.email.data.payload.parts.find(p => p.mimeType === 'text/html');
+      console.log('current.context.email', current.context.email);
+      const contentMultiple = get(current.context.email, 'data.payload.parts', []).find(
+        p => p.mimeType === 'multipart/alternative',
+      );
+      const contentHtml =
+        (contentMultiple && contentMultiple.parts.find(p => p.mimeType === 'text/html')) ||
+        get(current.context.email, 'data.payload.parts', []).find(p => p.mimeType === 'text/html');
       const contentText = contentHtml
         ? null
-        : current.context.email.data.payload.parts.find(p => p.mimeType === 'text/plain');
+        : get(current.context.email, 'data.payload.parts', []).find(p => p.mimeType === 'text/plain') ||
+          get(current.context.email, 'data.payload');
+
       return (
         <div>
           <h2>Email reçu</h2>

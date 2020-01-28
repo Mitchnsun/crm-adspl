@@ -22,6 +22,7 @@ export default function createEmails() {
       return user._authUser.getIdToken(true).then(function(idToken) {
         return fetch(process.env.CRM_API_URL + '/email', {
           headers: {
+            'Content-Type': 'application/json',
             authorization: `Bearer ${idToken}`,
           },
           method: 'POST',
@@ -30,7 +31,7 @@ export default function createEmails() {
           .then(res => {
             console.log('email sent');
             if (res.ok) {
-              return res.json();
+              return;
             }
             throw new Error(res.statusText);
           })

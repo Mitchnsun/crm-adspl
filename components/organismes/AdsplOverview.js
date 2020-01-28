@@ -516,7 +516,7 @@ function toJSX(item, index) {
           return <div key={index}>{JSON.stringify(item)}</div>;
       }
     }
-    case 'payment-check': {
+    case 'payment-check-paid': {
       const {
         date,
         input: { cotisation },

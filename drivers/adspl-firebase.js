@@ -6,6 +6,7 @@ export default function createAdspl() {
       return user._authUser.getIdToken(true).then(function(idToken) {
         return fetch(process.env.CRM_API_URL + '/adspl/check-entry', {
           headers: {
+            'Content-Type': 'application/json',
             authorization: `Bearer ${idToken}`,
           },
           method: 'POST',
@@ -27,6 +28,7 @@ export default function createAdspl() {
       return user._authUser.getIdToken(true).then(function(idToken) {
         return fetch(process.env.CRM_API_URL + '/adspl/activate-email', {
           headers: {
+            'Content-Type': 'application/json',
             authorization: `Bearer ${idToken}`,
           },
           method: 'POST',
@@ -48,6 +50,7 @@ export default function createAdspl() {
       return user._authUser.getIdToken(true).then(function(idToken) {
         return fetch(process.env.CRM_API_URL + '/adspl/delete-account', {
           headers: {
+            'Content-Type': 'application/json',
             authorization: `Bearer ${idToken}`,
           },
           method: 'POST',
@@ -111,6 +114,7 @@ export default function createAdspl() {
         return fetch(process.env.CRM_API_URL + '/adspl/infos/' + id, {
           method: 'post',
           headers: {
+            'Content-Type': 'application/json',
             authorization: `Bearer ${idToken}`,
           },
           body: JSON.stringify(infos),

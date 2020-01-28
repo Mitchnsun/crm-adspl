@@ -234,7 +234,9 @@ app.get('/email/:id', validateFirebaseIdToken, checkUser(['admin', 'agent']), as
 const mail = require('./mail-mailjet');
 app.post('/email', validateFirebaseIdToken, checkUser(['admin', 'agent']), async (req, res) => {
   try {
-    await mail.sendMessage(JSON.parse(req.body));
+    console.log('/email request', typeof req.body, req.body);
+    const response = await mail.sendMessage(req.body);
+    console.log('/email response', JSON.stringify(response));
   } catch (e) {
     console.error(e);
     res.status(500).send(e.message);

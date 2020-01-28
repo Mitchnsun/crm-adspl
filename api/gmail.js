@@ -75,7 +75,8 @@ function getGmail() {
   });
 }
 
-const CRM_TICKET_CREATED = 'Label_136'; // Id on GMAIL
+const CRM_TICKET_ADDED = 'Label_197'; // Id on GMAIL
+const CRM_TICKET_ADDING = 'Label_198'; // Id on GMAIL
 
 module.exports = function() {
   return {
@@ -86,34 +87,47 @@ module.exports = function() {
             userId: 'me',
             q: '',
             labelIds: ['INBOX', 'UNREAD'],
-            maxResults: 5,
+            maxResults: 10,
           })
           .then(value => {
             return (value.data.messages || []).map(m => m.id);
           });
       });
     },
-    async createBatches(messageIds, onReceiveGmailEmail, updateLabels, getById, currentlabelId) {
-      await updateLabels(messageIds, currentlabelId);
+    async createBatches(messageIds, onReceiveGmailEmail, getById) {
       for (const id of messageIds) {
+        await this.updateLabelAdding(id);
         const response = await getById(id);
-        await onReceiveGmailEmail(response.data, currentlabelId);
+        await onReceiveGmailEmail(response.data);
+        await this.updateLabelAdded(id);
       }
     },
     async addNewTicket(onReceiveGmailEmail) {
       const messageIds = await this.getMessageIds();
       if (messageIds.length === 0) return false;
-      await this.createBatches(messageIds, onReceiveGmailEmail, this.updateLabels, this.getById);
+      await this.createBatches(messageIds, onReceiveGmailEmail, this.getById);
       return true;
     },
-    updateLabels(ids, currentlabelId) {
+    updateLabelAdding(id) {
       return getGmail().then(gmail =>
-        gmail.users.messages.batchModify({
+        gmail.users.messages.modify({
           userId: 'me',
+          id,
           requestBody: {
-            ids,
-            addLabelIds: [CRM_TICKET_CREATED, currentlabelId],
+            addLabelIds: [CRM_TICKET_ADDING],
             removeLabelIds: ['UNREAD'],
+          },
+        }),
+      );
+    },
+    updateLabelAdded(id) {
+      return getGmail().then(gmail =>
+        gmail.users.messages.modify({
+          userId: 'me',
+          id,
+          requestBody: {
+            addLabelIds: [CRM_TICKET_ADDED],
+            removeLabelIds: ['INBOX', CRM_TICKET_ADDING],
           },
         }),
       );

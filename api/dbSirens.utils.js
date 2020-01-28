@@ -52,7 +52,13 @@ function getCreditCardPaymentDate(creditCardPayment) {
   return '';
 }
 
-const getPaymentCheckStatus = checkPayment => (checkPayment ? PSTATUS.OK : PSTATUS.UNKNOWN);
+const getPaymentCheckStatus = checkPayment => {
+  if (checkPayment.PAID) return 'PAID';
+  if (checkPayment.PRINTED) return 'PRINTED';
+  if (checkPayment.PRINT) return 'TO_PRINT';
+  if (checkPayment.uriFirebaseStorage !== undefined && checkPayment.uriFirebaseStorage !== null) return 'PAID'; // Was for cotisation 2018
+  return PSTATUS.UNKNOWN;
+};
 
 function getPaymentStatus(payment) {
   const paymentCreditCardStatus = getPaymentCreditCardStatus(get(payment, 'CREDIT_CARD'));

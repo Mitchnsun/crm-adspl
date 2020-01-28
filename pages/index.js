@@ -40,6 +40,7 @@ const machine = Machine({
       on: {
         LOAD_TAB_MINE: 'loadingTabMine',
         LOAD_TAB_ALL: 'loadingTabAll',
+        MORE: 'loadingTabWaitingMore',
       },
     },
     failureTabWaiting: {
@@ -70,6 +71,7 @@ const machine = Machine({
       on: {
         LOAD_TAB_WAITING: 'loadingTabWaiting',
         LOAD_TAB_ALL: 'loadingTabAll',
+        MORE: 'loadingTabMineMore',
       },
     },
     failureTabMine: {
@@ -108,6 +110,44 @@ const machine = Machine({
         RETRY: 'loadingTabAll',
       },
     },
+    loadingTabWaitingMore: {
+      invoke: {
+        src: 'fetchTabWaitingMore',
+        onDone: {
+          target: 'successTabWaitingMore',
+          actions: assign({
+            data: (context, event) => context.data.concat(event.data),
+            error: () => null,
+          }),
+        },
+        onError: {
+          target: 'failureTabWaitingMore',
+          actions: assign({
+            error: (_, event) => event.data,
+            data: () => null,
+          }),
+        },
+      },
+    },
+    loadingTabMineMore: {
+      invoke: {
+        src: 'fetchTabMineMore',
+        onDone: {
+          target: 'successTabMineMore',
+          actions: assign({
+            data: (context, event) => context.data.concat(event.data),
+            error: () => null,
+          }),
+        },
+        onError: {
+          target: 'failureTabMineMore',
+          actions: assign({
+            error: (_, event) => event.data,
+            data: () => null,
+          }),
+        },
+      },
+    },
     loadingTabAllMore: {
       invoke: {
         src: 'fetchTabAllMore',
@@ -139,6 +179,30 @@ const machine = Machine({
         RETRY: 'loadingTabAllMore',
       },
     },
+    successTabMineMore: {
+      on: {
+        LOAD_TAB_ALL: 'loadingTabAll',
+        LOAD_TAB_WAITING: 'loadingTabWaiting',
+        MORE: 'loadingTabMineMore',
+      },
+    },
+    failureTabMineMore: {
+      on: {
+        RETRY: 'loadingTabMineMore',
+      },
+    },
+    successTabWaitingMore: {
+      on: {
+        LOAD_TAB_ALL: 'loadingTabAll',
+        LOAD_TAB_MINE: 'loadingTabMine',
+        MORE: 'loadingTabWaitingMore',
+      },
+    },
+    failureTabWaitingMore: {
+      on: {
+        RETRY: 'loadingTabWaitingMore',
+      },
+    },
   },
 });
 
@@ -162,11 +226,14 @@ const render = (current, send) => {
     case 'successTabAll':
     case 'successTabAllMore':
     case 'loadingTabAllMore':
-      const loadMore = ['successTabAll', 'successTabAllMore'].includes(current.value);
+    case 'successTabMineMore':
+    case 'loadingTabMineMore':
+    case 'successTabWaitingMore':
+    case 'loadingTabWaitingMore':
       return (
         <React.Fragment>
           <TableTickets tickets={current.context.data} />
-          {loadMore && <button onClick={() => send('MORE')}>MORE</button>}
+          <button onClick={() => send('MORE')}>MORE</button>
         </React.Fragment>
       );
     default:
@@ -179,8 +246,26 @@ function TicketsView() {
   const user = useContext(UserContext);
   const [current, send] = useMachine(machine, {
     services: {
-      fetchTabWaiting: () => Tickets.getAll({ status: 'PENDING' }),
-      fetchTabMine: () => Tickets.getAll({ followedBy: user, status: 'IN_PROGRESS' }),
+      fetchTabWaiting: () => Tickets.getAll({ status: 'PENDING', limit: 10 }),
+      fetchTabWaitingMore: context =>
+        Tickets.getAll({
+          limit: 10,
+          status: 'PENDING',
+          startAfter: context.data && context.data[context.data.length - 1],
+        })
+          .then(r => {
+            console.log('r', r);
+            return r;
+          })
+          .catch(console.error),
+      fetchTabMine: () => Tickets.getAll({ followedBy: user, status: 'IN_PROGRESS', limit: 10 }),
+      fetchTabMineMore: context =>
+        Tickets.getAll({
+          limit: 10,
+          followedBy: user,
+          status: 'IN_PROGRESS',
+          startAfter: context.data && context.data[context.data.length - 1],
+        }),
       fetchTabAll: () => Tickets.getAll({ limit: 10 }),
       fetchTabAllMore: context =>
         Tickets.getAll({

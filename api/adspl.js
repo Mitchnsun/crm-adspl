@@ -70,9 +70,39 @@ function toCSVLineSiret(year, key, value) {
   return [value.siren, value.siret, value.email].join(';') + '\n';
 }
 
+function checkPrinted({ cotisation: year, id }, userId) {
+  const data = {
+    date: moment().toISOString(),
+    id,
+    year,
+    agentId: userId,
+  };
+
+  const root = id.length === 9 ? `sirens` : `ids`;
+
+  const logEvent = () => {
+    return adspl
+      .database()
+      .ref(`${root}/${id}/_history`)
+      .push({
+        date: data.date,
+        task: 'check-entry',
+        input: data,
+        by: userId,
+      });
+  };
+
+  return adspl
+    .database()
+    .ref(`${root}/${id}/cotisations/${year}/PAYMENT/CHECK/PRINTED`)
+    .set(data)
+    .then(logEvent);
+}
+
 function checkEntry({ cotisation: year, id, amount, checkNumber }, userId) {
   const data = {
     date: moment().toISOString(),
+    year,
     id,
     amount,
     checkNumber,
@@ -112,7 +142,7 @@ function checkEntry({ cotisation: year, id, amount, checkNumber }, userId) {
 
   return adspl
     .database()
-    .ref(`${root}/${id}/cotisations/${year}/PAYMENT/CHECK`)
+    .ref(`${root}/${id}/cotisations/${year}/PAYMENT/CHECK/PAID`)
     .set(data)
     .then(logEvent);
 }
